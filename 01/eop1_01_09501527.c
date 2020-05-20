@@ -6,6 +6,7 @@ int subst(char *str, char c1, char c2)
   int c = 0;
   for(i = 0; *(str + i) != '\0'; i++)
     {
+      if(c1 == c2) break;
       if(*(str + i) == c1)
 	{
 	  *(str + i) = c2;

@@ -1,0 +1,13 @@
+\BOOKMARK [1][-]{section.1}{概要}{}% 1
+\BOOKMARK [1][-]{section.2}{プログラムの作成方針}{}% 2
+\BOOKMARK [1][-]{section.3}{プログラムの説明}{}% 3
+\BOOKMARK [2][-]{subsection.3.1}{文字列操作の基礎：subst関数とsplit関数の実装}{section.3}% 4
+\BOOKMARK [2][-]{subsection.3.2}{構造体や配列を用いた名簿データの定義}{section.3}% 5
+\BOOKMARK [2][-]{subsection.3.3}{標準入力の取得と構文解析}{section.3}% 6
+\BOOKMARK [1][-]{section.4}{プログラムの使用法と実行結果}{}% 7
+\BOOKMARK [1][-]{section.5}{考察}{}% 8
+\BOOKMARK [2][-]{subsection.5.1}{「文字列操作の基礎：subst関数とsplit関数の実装」に関する考察}{section.5}% 9
+\BOOKMARK [2][-]{subsection.5.2}{「標準入力の取得と構文解析」に関する考察}{section.5}% 10
+\BOOKMARK [2][-]{subsection.5.3}{「・・・（サンプルのため，省略）」に関する考察}{section.5}% 11
+\BOOKMARK [1][-]{section.6}{感想}{}% 12
+\BOOKMARK [1][-]{section.7}{作成したプログラム}{}% 13
