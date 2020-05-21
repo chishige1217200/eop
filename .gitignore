@@ -2,7 +2,6 @@
 *.out
 *.log
 *.dvi
-*.pdf
 *.csv
 *db-sample
 *.*~
