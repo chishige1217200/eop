@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <string.h>                                        /*strncpy用*/
+#include <string.h>                                        /*strncpy関数等用*/
 #include <stdlib.h>                                        /*exit関数用*/
 
 #define ESC 27                                             /*文字列ESCをESCのASCIIコードで置換*/
@@ -98,8 +98,8 @@ void parse_line(char *line)
 	  if(*(line + 2) != ' ')                           /*3文字目が空白でないとき*/
 	    {
 	      param = line + 2;
-	      //printf("引数を要するコマンド入力の場合，3文字目は空白である必要があります．\n処理を中止しました．\n\n");
-	      //return;
+	      printf("引数を要するコマンド入力の場合，3文字目は空白である必要があります．\n処理を中止しました．\n\n");
+	      return;
 	    }
 	  else
 	  param = line + 3;                                /*ポインタlineに3を足したアドレスをポインタparamに代入*/
