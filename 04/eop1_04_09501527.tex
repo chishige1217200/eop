@@ -189,14 +189,18 @@
 本名簿管理プログラムでは，構造体の配列を名簿データとして扱う．
 9--14行目で，\verb|date|構造体を定義し，
 16--23行目で，\verb|profile|構造体を定義している．
-\verb|profile|構造体は，その中身に\verb|date|構造体を含む．
 この\verb|profile|型の変数1つが，名簿データ1つに相当する．
 そして，41行目の\verb|profile_data_store|変数で，全名簿データを管理し，
 42行目の\verb|int|型変数\verb|profile_data_nitems|で，名簿データの個数を管理する．
+\verb|date|構造体の定義にあたっては，年，月，日に分けて情報を管理できるよう，3つの\verb|int|型変数を用意している．
+\verb|profile|構造体は，その要素に\verb|date|構造体を含む．
 
-\verb|date|構造体の定義にあたっては，・・・（以降，サンプルのため，省略）
-
-・・・（サンプルのため，省略）
+\verb|profile|構造体の各要素について説明する．
+まず，IDを格納するための\verb|int|型変数\verb|id|である．これは\verb|int|型変数の最小値\verb|-2147483648|と最大値\verb|2147483647|の間で整数値を格納できる．
+次に，名前を格納するための\verb|char|型の配列\verb|name|である．これは\verb|NULL|文字を含めて最大70文字の文字列を格納できる．
+そして，\verb|date|型の変数\verb|birthday|である．これは前述したように年，月，日の3つの\verb|int|型のメンバからなる変数である．
+次に，住所を格納するための\verb|char|型の配列\verb|address|である．文字列の配列\verb|name|同様，\verb|NULL|文字を含めて最大70文字の文字列を格納できる．
+最後に，備考を格納するための\verb|char|型の配列\verb|biko|である．また，入力情報に備考がない場合，この変数は\verb|NULL|となる．
 
 %--------------------------------------------------------------------%
 \subsection{標準入力の取得と構文解析}
@@ -211,6 +215,8 @@
 %--------------------------------------------------------------------%
 \subsection{\texttt{CSV}データ登録処理の実装}
 %--------------------------------------------------------------------%
+
+\verb|new_profile()|関数で，\verb|profile|型のグローバル変数\verb|profile_data_store[10000]|に\verb|CSV|データの入力情報を登録する．何番目のデータとして入力情報の登録を行うかは，\verb|int|型のグローバル変数\verb|profile_data_nitems|によって指定する．\verb|profile_data_nitems|は\verb|new_profile()|関数を呼び出す際にインクリメントされるため，重複なくデータの登録が行われる．
 
 
 
@@ -680,6 +686,8 @@ main関数で管理*/
   \bibitem{www:label4} 4.3 ポインタ配列，http://cai3.cs.shinshu-u.ac.jp/sugsi/Lecture/c2/e\_04-03.html，2020．05．14．%アンダースコアはLaTeXの特殊文字にあたるため，\を挿入している．
   \bibitem{www:label5} strncpy，http://www9.plala.or.jp/sgwr-t/lib/strncpy.html，2020．5．21．
   \bibitem{www:label6} 文字列を数値に変換する - C の部屋，http://www.t-net.ne.jp/~cyfis/c/stdlib/atoi.html，2020．5．21．
+  \bibitem{www:label7} IT用語辞典E-Words コアダンプ，http://e-words.jp/w/\%E3\%82\%B3\%E3\%82\%A2\%E3\%83\%80\%E3
+\%83\%B3\%E3\%83\%97.html，2020．5．22．%'%'はLaTeXの特殊文字にあたるため，\を挿入している．
   %\bibitem{a} 著者名，書名，出版社，発行年.
   %\bibitem{b} WWWページタイトル，URL，アクセス日.
 \end{thebibliography}
