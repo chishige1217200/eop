@@ -177,7 +177,7 @@ void cmd_print(char *param)
     }
   else if(a < 0)                                             /*引数が負の整数のとき*/
     {
-      for(i = profile_data_nitems - 1; i >= profile_data_nitems + a; i--)
+      for(i = profile_data_nitems + a; i < profile_data_nitems; i++)
 	{
 	  printf("Id    : %d\n", profile_data_store[i].id);
 	  printf("Name  : %s\n", profile_data_store[i].name);

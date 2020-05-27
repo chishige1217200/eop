@@ -3,6 +3,7 @@
 *.log
 *.dvi
 *.csv
+*.sh
 *db-sample
 *.*~
 #*.*#
