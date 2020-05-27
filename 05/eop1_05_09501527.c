@@ -152,7 +152,7 @@ void cmd_quit()
 
 void cmd_check(void)
 {
-  printf("%d profile(s) has been registered.\n", profile_data_nitems);
+  printf("%d profile(s)\n", profile_data_nitems);
 }
 
 void cmd_print(char *param)
@@ -168,33 +168,33 @@ void cmd_print(char *param)
     {
       for(i = 0; i < a; i++)
         {
-	  printf("Id       : %d\n", profile_data_store[i].id);
-	  printf("Name     : %s\n", profile_data_store[i].name);
-	  printf("Birth    : %04d-%02d-%02d\n", profile_data_store[i].birthday.y, profile_data_store[i].birthday.m, profile_data_store[i].birthday.d);
-	  printf("Address  : %s\n",profile_data_store[i].address);
-	  printf("Comment  : %s\n\n",profile_data_store[i].biko);
+	  printf("Id    : %d\n", profile_data_store[i].id);
+	  printf("Name  : %s\n", profile_data_store[i].name);
+	  printf("Birth : %04d-%02d-%02d\n", profile_data_store[i].birthday.y, profile_data_store[i].birthday.m, profile_data_store[i].birthday.d);
+	  printf("Addr. : %s\n",profile_data_store[i].address);
+	  printf("Comm. : %s\n\n",profile_data_store[i].biko);
 	}
     }
   else if(a < 0)                                             /*引数が負の整数のとき*/
     {
       for(i = profile_data_nitems - 1; i >= profile_data_nitems + a; i--)
 	{
-	  printf("Id       : %d\n", profile_data_store[i].id);
-	  printf("Name     : %s\n", profile_data_store[i].name);
-	  printf("Birth    : %04d-%02d-%02d\n", profile_data_store[i].birthday.y, profile_data_store[i].birthday.m, profile_data_store[i].birthday.d);
-	  printf("Address  : %s\n",profile_data_store[i].address);
-	  printf("Comment  : %s\n\n",profile_data_store[i].biko);
+	  printf("Id    : %d\n", profile_data_store[i].id);
+	  printf("Name  : %s\n", profile_data_store[i].name);
+	  printf("Birth : %04d-%02d-%02d\n", profile_data_store[i].birthday.y, profile_data_store[i].birthday.m, profile_data_store[i].birthday.d);
+	  printf("Addr. : %s\n",profile_data_store[i].address);
+	  printf("Comm. : %s\n\n",profile_data_store[i].biko);
 	}
     }
   else                                                       /*引数が0のとき，または登録件数*/
     {
       for(i = 0; i < profile_data_nitems; i++)
 	{
-	  printf("Id       : %d\n", profile_data_store[i].id);
-	  printf("Name     : %s\n", profile_data_store[i].name);
-	  printf("Birth    : %04d-%02d-%02d\n", profile_data_store[i].birthday.y, profile_data_store[i].birthday.m, profile_data_store[i].birthday.d);
-	  printf("Address  : %s\n",profile_data_store[i].address);
-	  printf("Comment  : %s\n\n",profile_data_store[i].biko);
+	  printf("Id    : %d\n", profile_data_store[i].id);
+	  printf("Name  : %s\n", profile_data_store[i].name);
+	  printf("Birth : %04d-%02d-%02d\n", profile_data_store[i].birthday.y, profile_data_store[i].birthday.m, profile_data_store[i].birthday.d);
+	  printf("Addr. : %s\n",profile_data_store[i].address);
+	  printf("Comm. : %s\n\n",profile_data_store[i].biko);
 	}
     }
 }
