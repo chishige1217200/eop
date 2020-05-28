@@ -30,7 +30,7 @@ void parse_line(char *line);
 void exec_command(char cmd, char *param);
 void cmd_quit(void);
 void cmd_check(void);
-void cmd_print();
+void cmd_print(char *param);
 void cmd_read();
 void cmd_write();
 void cmd_find();
@@ -40,7 +40,6 @@ void new_profile(struct profile *profile_p, char *line);
 /*グローバル変数宣言*/
 struct profile profile_data_store[10000];                  /*profile情報を格納*/
 int profile_data_nitems = 0;                               /*profile情報の保存数を格納*/
-//char *buffer = "(Null Parameter)";                         /*コマンド引数の例外処理用*/
 
 int subst(char *str, char c1, char c2)
 {
@@ -93,18 +92,7 @@ void parse_line(char *line)
   if(*line == '%')                                         /*入力文字列の1文字目が%のとき*/
     {
       cmd = *(line + 1);                                   /*cmdに入力文字列の2文字目の値を代入*/
-      if(*(line + 3) != '\0')                              /*パラメータ部があるとき*/
-	{
-	  if(*(line + 2) != ' ')                           /*3文字目が空白でないとき*/
-	    {
-	      param = line + 2;
-	      fprintf(stderr, "引数を要するコマンド入力の場合，3文字目は空白である必要があります．\n処理を中止しました．\n\n");
-	      return;
-	    }
-	  else
-	  param = line + 3;                                /*ポインタlineに3を足したアドレスをポインタparamに代入*/
-	}
-      //else param = buffer;                                 /*入力文字列にパラメータ部が無いとき，文字列"(Null Parameter)"のアドレスをポインタparamに代入*/
+      param = line + 3;                                    /*paramにパラメータ部を代入*/
       exec_command(cmd, param);
     }
   else                                                     /*入力がコマンドではないとき*/
@@ -124,7 +112,7 @@ void exec_command(char cmd, char *param)
   case 'W': cmd_write();  break;
   case 'F': cmd_find();   break;
   case 'S': cmd_sort();   break;
-  default: fprintf(stderr, "%%%c command is invoked with arg: \"%s\"\n", cmd, param); break;/*エラーメッセージを表示*/
+  default: fprintf(stderr, "Invalid command %c: ignored.\n", cmd); break;/*エラーメッセージを表示*/
   }
 }
 
@@ -162,9 +150,10 @@ void cmd_print(char *param)
 
   a = atoi(param);                                           /*文字列をint型の値に変換*/
 
-  if(a <= - profile_data_nitems||a > profile_data_nitems) a = 0; /*引数が(名簿登録件数)*(-1)以下のとき，aに0を代入*/
+  /**/
+  if(abs(a) >= profile_data_nitems|| a == 0) a = profile_data_nitems;
 
-  if(a > 0)                                                  /*引数が正の整数のとき*/
+  if(a > 0)                                                  /*引数が正の整数のとき及び例外*/
     {
       for(i = 0; i < a; i++)
         {
@@ -186,17 +175,6 @@ void cmd_print(char *param)
 	  printf("Comm. : %s\n\n",profile_data_store[i].biko);
 	}
     }
-  else                                                       /*引数が0のとき，または登録件数*/
-    {
-      for(i = 0; i < profile_data_nitems; i++)
-	{
-	  printf("Id    : %d\n", profile_data_store[i].id);
-	  printf("Name  : %s\n", profile_data_store[i].name);
-	  printf("Birth : %04d-%02d-%02d\n", profile_data_store[i].birthday.y, profile_data_store[i].birthday.m, profile_data_store[i].birthday.d);
-	  printf("Addr. : %s\n",profile_data_store[i].address);
-	  printf("Comm. : %s\n\n",profile_data_store[i].biko);
-	}
-    }
 }
 
 void cmd_read()
@@ -208,7 +186,6 @@ void cmd_write()
 {
   fprintf(stderr, "Write command is invoked.\n");
 }
-
 void cmd_find()
 {
   fprintf(stderr, "Find command is invoked.\n");
@@ -241,7 +218,7 @@ void new_profile(struct profile *profile_p, char *line)
   if(birth_c != 2)                                         /*誕生日の年，月，日を正常に分割できない場合*/
       {
 	fprintf(stderr, "誕生日は\"年-月-日\"の形で入力される必要があります．\n処理を中止しました．\n\n"); /*年，月，日に分割できない場合，処理を停止*/
-	profile_data_nitems--;                               /*処理中止により，構造体に情報を書き込まないため*/
+	profile_data_nitems--;                             /*処理中止により，構造体に情報を書き込まないため*/
 	return;
       }
 
