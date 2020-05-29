@@ -150,7 +150,7 @@ void cmd_print(char *param)
 
   a = atoi(param);                                           /*文字列をint型の値に変換*/
 
-  /**/
+  /*aの絶対値がprofile_data_nitemsより大きいときかa=0のとき*/
   if(abs(a) >= profile_data_nitems|| a == 0) a = profile_data_nitems;
 
   if(a > 0)                                                  /*引数が正の整数のとき及び例外*/
@@ -205,10 +205,10 @@ void new_profile(struct profile *profile_p, char *line)
   int max = 10;
   int max2 = 4;
   int c, birth_c;
-  int MAX_BIKO = 0;                                        /*備考の文字数カウント*/
+  int MAX_BIKO = 0;                                        /*備考の文字数カウント用*/
   
   c = split(line, ret, sep, max);                          /*ID，名前などの情報を分割する*/
-  if(c != 4)                                               /*備考以外の入力がない場合*/
+  if(c != 4)                                               /*入力形式が合わない場合*/
     {
       fprintf(stderr, "情報はID，名前，誕生日，住所，備考の順で入力される必要があります．\n処理を中止しました．\n\n");
       profile_data_nitems--;                               /*処理中止により，構造体に情報を書き込まないため*/
@@ -240,9 +240,9 @@ int main(void)
 {
   char LINE[MAX_LINE] = {0};                               /*入力文字列(1行分)はmain関数で管理*/
 
-  while(get_line(LINE))                                    /*文字配列LINEに文字列を入力する(get_line関数)*/
+  while(get_line(LINE))                                    /*文字配列LINEに文字列を入力する*/
     {
-      parse_line(LINE);                                    /*入力文字列がある場合，構文解析を行う(parse_line関数)*/
+      parse_line(LINE);                                    /*入力文字列がある場合，構文解析を行う*/
     }
   return 0;
 }
