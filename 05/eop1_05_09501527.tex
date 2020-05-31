@@ -354,15 +354,98 @@ split[4]:"A1418"
 出力ブロックの最初の1行は，\verb|CSV|ファイルを想定した，カンマで区切られた文字列である．
 出力結果では，何行目の入力かを示す\verb|line number|の項目と，実際の入力内容を確認で表示し，3行目以降にカンマで区切られた文字列が出力される．\verb|get_line()|関数は入力が\verb|NULL|になると入力処理を終了するように$0$を戻り値として返すので，出力結果は\verb|line number|が$2$の項目までとなっている．
 
+次に，\verb|parse_line()|\verb|new_profile()|，\verb|cmd_check()|，\verb|cmd_print()|，\verb|cmd_quit()|関数の実行結果について説明する．
+\ref{funcnow}節のプログラムに対して，次の内容の\verb|input.txt|をリダイレクションで与えた場合，
 
+{\fontsize{10pt}{11pt} \selectfont
+ \begin{verbatim}
+5100046,The Bridge,1845-11-2,14 Seafield Road Longman Inverness,SEN Unit 2.0 Open
+5100127,Bower Primary School,1908-1-19,Bowermadden Bower Caithness,01955 641225 Primary
+ 25 2.6 Open
+5100224,Canisbay Primary School,1928-7-5,Canisbay Wick,01955 611337 Primary 56 3.5 Open
+%C
+%P 2
+%P -2
+%P 5
+%P 0
+%Q
+ \end{verbatim}
+}
 
+\noindent % noindentとはここでは段落を変えない（一字下げをしない）というコマンド．
+以下のような出力が得られる．
 
-%CSVデータは，・・・で示したように，7つの項目からなる．
-% 注：上1行の「表1」の部分は，\refを用いて適切に参照すること．
-%3行目の\%S3 は，これまでの入力データを3番目の項目（生年月日）で
-%ソートすることを示している．
-%4行目の\%P0 は，入力した項目の全ての項目 ($1$--$7$) を
-%表示することを示している．
+{\fontsize{10pt}{11pt} \selectfont
+ \begin{verbatim}
+3 profile(s)
+Id    : 5100046
+Name  : The Bridge
+Birth : 1845-11-02
+Addr. : 14 Seafield Road Longman Inverness
+Comm. : SEN Unit 2.0 Open
+
+Id    : 5100127
+Name  : Bower Primary School
+Birth : 1908-01-19
+Addr. : Bowermadden Bower Caithness
+Comm. : 01955 641225 Primary 25 2.6 Open
+
+Id    : 5100127
+Name  : Bower Primary School
+Birth : 1908-01-19
+Addr. : Bowermadden Bower Caithness
+Comm. : 01955 641225 Primary 25 2.6 Open
+
+Id    : 5100224
+Name  : Canisbay Primary School
+Birth : 1928-07-05
+Addr. : Canisbay Wick
+Comm. : 01955 611337 Primary 56 3.5 Open
+
+Id    : 5100046
+Name  : The Bridge
+Birth : 1845-11-02
+Addr. : 14 Seafield Road Longman Inverness
+Comm. : SEN Unit 2.0 Open
+
+Id    : 5100127
+Name  : Bower Primary School
+Birth : 1908-01-19
+Addr. : Bowermadden Bower Caithness
+Comm. : 01955 641225 Primary 25 2.6 Open
+
+Id    : 5100224
+Name  : Canisbay Primary School
+Birth : 1928-07-05
+Addr. : Canisbay Wick
+Comm. : 01955 611337 Primary 56 3.5 Open
+
+Id    : 5100046
+Name  : The Bridge
+Birth : 1845-11-02
+Addr. : 14 Seafield Road Longman Inverness
+Comm. : SEN Unit 2.0 Open
+
+Id    : 5100127
+Name  : Bower Primary School
+Birth : 1908-01-19
+Addr. : Bowermadden Bower Caithness
+Comm. : 01955 641225 Primary 25 2.6 Open
+
+Id    : 5100224
+Name  : Canisbay Primary School
+Birth : 1928-07-05
+Addr. : Canisbay Wick
+Comm. : 01955 611337 Primary 56 3.5 Open
+
+ \end{verbatim}
+}
+
+入力データについて説明する．
+出力ブロックの最初の3行は，\verb|CSV|ファイルを想定した，カンマで区切られた文字列である．
+以降の行では，\verb|%|から始まるコマンドの呼び出しを行っている．
+出力結果では，最初の1行に名簿データの登録数を出力する\verb|cmd_check()|関数による\verb|3 profile(s)|という内容が出力されている．それ以降のブロックでは，\verb|%P 2|という引数を含む\verb|cmd_print()|関数の呼び出しで，名簿データの初めから2件が表示され，次に\verb|%P -2|により，名簿データの後ろから2件を降順に表示している．次の\verb|%P 5|は名簿データが3件しか登録されていないため，\verb|%P 3|に読み替えて処理が行われる．引数が無い場合や$0$の場合も同様となる．最後に\verb|%Q|により，プログラムを終了している．
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{考察}
