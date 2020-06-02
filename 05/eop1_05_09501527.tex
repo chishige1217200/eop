@@ -30,7 +30,7 @@
 
 % ToDo: レポート課題等の指示に従って適切に書き換える
 \date{出題日: 2020年05月27日 \\
-      提出日: 2020年06月01日 \\
+      提出日: 2020年06月02日 \\
       締切日: 2020年06月03日 \\}  % 注：最後の\\は不要に見えるが必要．
 
 %%======== 本文 ====================================================%%
@@ -1147,9 +1147,11 @@ main関数で管理*/
 \end{Verbatim}
 
 \subsection{プログラミング演習1第5回講義のプログラム}\label{funcnow}
+
+本プログラムは，\verb|UNIX|用\verb|db-sample|に合わせた仕様となっている．ただし，試験用スクリプトが\verb|CentOS|上で実行できなかった場合，\verb|db-sample_cygwin_v2.exe|に合わせた仕様のものを試験用スクリプトで使用する．そのソースコードは\ref{funccyg}節に記載している．また，プログラムの一部機能を\verb|//|で無効化している．
+
 \verb|C|，\verb|P|コマンドを加えたプログラムのソースコード(248行)
 
-プログラムの一部機能を\verb|//|で無効化している．
 \begin{Verbatim}[fontsize=\small, baselinestretch=0.8]
      1	#include <stdio.h>
      2	#include <string.h>                                        /*strncpy関数等用*/
@@ -1479,6 +1481,304 @@ main関数で管理*/
     24	
     25		return 0;
     26	}
+\end{Verbatim}
+
+\subsection{\texttt{db-sample\_cygwin\_v2.exe}に合わせたプログラム}\label{funccyg}
+
+このソースコードは，\ref{funcnow}節のプログラムの\verb|printf()|関数の出力結果を\verb|db-sample_cygwin_v2.exe|に合わせたものである．試験用スクリプトが\verb|CentOS|上で実行できなかった場合は，これを代わりに使用する．ソースコードは248行からなる．
+
+\begin{Verbatim}[fontsize=\small, baselinestretch=0.8]
+     1	#include <stdio.h>
+     2	#include <string.h>                                        /*strncpy関数等用*/
+     3	#include <stdlib.h>                                        /*exit関数用*/
+     4	
+     5	#define ESC 27                                             /*文字列ESCをESC
+のASCIIコードで置換*/
+     6	#define MAX_LINE 1025                                      /*文字配列LINEの
+最大入力数の指定用*/
+     7	
+     8	/*構造体宣言*/
+     9	struct date
+    10	{
+    11	  int y; /*年*/
+    12	  int m; /*月*/
+    13	  int d; /*日*/
+    14	};
+    15	
+    16	struct profile
+    17	{
+    18	  int id;               /*ID*/
+    19	  char name[70];        /*名前*/
+    20	  struct date birthday; /*誕生日(date構造体)*/
+    21	  char address[70];     /*住所*/
+    22	  char *biko;           /*備考*/
+    23	};
+    24	
+    25	/*関数プロトタイプ宣言（煩雑化防止）*/
+    26	int subst(char *str, char c1, char c2);
+    27	int split(char *str, char *ret[], char sep, int max);
+    28	int get_line(char *line);
+    29	void parse_line(char *line);
+    30	void exec_command(char cmd, char *param);
+    31	void cmd_quit(void);
+    32	void cmd_check(void);
+    33	void cmd_print(char *param);
+    34	void cmd_read();
+    35	void cmd_write();
+    36	void cmd_find();
+    37	void cmd_sort();
+    38	void new_profile(struct profile *profile_p, char *line);
+    39	
+    40	/*グローバル変数宣言*/
+    41	struct profile profile_data_store[10000];                  /*profile情報を
+格納*/
+    42	int profile_data_nitems = 0;                               /*profile情報の
+保存数を格納*/
+    43	
+    44	int subst(char *str, char c1, char c2)
+    45	{
+    46	  int i;                                                   /*forループ用*/
+    47	  int c = 0;                                               /*置き換えた文字
+数のカウント用*/
+    48	  for(i = 0; *(str + i) != '\0'; i++)                      /*入力文字列の
+終端に辿り着くまでループ*/
+    49	    {
+    50	      if(c1 == c2) break;                                  /*見た目上文字列
+に変化がないとき*/
+    51	      if(*(str + i) == c1)                                 /*(str + i)の
+文字がc1の文字と同じとき*/
+    52		{
+    53		  *(str + i) = c2;                                 /*(str + i)の
+文字をc2の文字に置き換える*/
+    54		  c++;                                             /*置き換えた文字
+を数える*/
+    55		}
+    56	    }
+    57	  return c;                                                /*置き換えた文字
+数を戻り値とする．*/
+    58	}
+    59	
+    60	int split(char *str, char *ret[], char sep, int max)
+    61	{
+    62	  int i;                                                   /*forループ用*/
+    63	  int c = 0;                                               /*ポインタ
+の配列の指定用*/
+    64	
+    65	  ret[0] = str;                                            /*ret[0]にstr
+の先頭アドレスを代入*/
+    66	
+    67	  for(i = 0; *(str + i) != '\0'&& c < max; i++)            /*cがmaxより小
+さいかつ入力文字列の終端に辿り着いていないときループ*/
+    68	    {
+    69	      if(*(str + i) == sep)                                /*(str + i)が
+sepのとき*/
+    70		{
+    71		  *(str + i) = '\0';                               /*(str + i)に
+NULLを代入*/
+    72		  c++;
+    73		  ret[c] = str + (i + 1);                          /*ret[c]にNULL
+文字の"次の"アドレスを代入*/
+    74		}
+    75	    }
+    76	  return c;                                                /*文字列をいく
+つに分割したかを戻り値とする*/
+    77	}
+    78	
+    79	int get_line(char *line)
+    80	{
+    81	  if(fgets(line, MAX_LINE, stdin) == NULL) return 0;       /*入力文字列が
+空のとき，0を戻り値とする．入力文字列は1024文字*/
+    82	  if(*line == ESC) cmd_quit();
+    83	  subst(line, '\n', '\0');                                 /*subst関数に
+より，入力の改行文字を終端文字に置き換える*/
+    84	  return 1;                                                /*入力文字列が
+存在したとき，1を戻り値とする*/
+    85	}
+    86	
+    87	void parse_line(char *line)
+    88	{
+    89	  char cmd;                                                /*%の次の1文字を格納用*/
+    90	  char *param;                                             /*コマンドの
+パラメータとなる文字列へのポインタ用*/
+    91	
+    92	  if(*line == '%')                                         /*入力文字列の1文字目が%のとき*/
+    93	    {
+    94	      cmd = *(line + 1);                                   /*cmdに入力
+文字列の2文字目の値を代入*/
+    95	      param = line + 3;                                    /*paramにパラメータ
+部を代入*/
+    96	      exec_command(cmd, param);
+    97	    }
+    98	  else                                                     /*入力がコマンド
+ではないとき*/
+    99	    {
+   100	      new_profile(&profile_data_store[profile_data_nitems++] ,line);
+   101	    }
+   102	}
+   103	
+   104	void exec_command(char cmd, char *param)
+   105	{
+   106	  switch (cmd) {
+   107	  case 'Q': cmd_quit();   break;
+   108	    //case 'T': printf("Parameter test:\"%s\"\n", param); break;   /*ポインタparamの参照先から後ろに向かって，NULLまで文字列を表示する（デバッグ用）*/
+   109	  case 'C': cmd_check();  break;
+   110	  case 'P': cmd_print(param);  break;
+   111	  case 'R': cmd_read();   break;
+   112	  case 'W': cmd_write();  break;
+   113	  case 'F': cmd_find();   break;
+   114	  case 'S': cmd_sort();   break;
+   115	  default: fprintf(stderr, "Invalid command %c: ignored.\n", cmd); break;/*エラーメッセージを表示*/
+   116	  }
+   117	}
+   118	
+   119	void cmd_quit()
+   120	{
+   121	  //char c;
+   122	
+   123	  //while(1)
+   124	  //{
+   125	  //printf("Do you want to quit?(y/n)\n");               /*確認メッセージ*/
+   126	  //c = getchar();
+   127	  //getchar();                                           /*getcharでの入力
+時に改行文字が残ってしまうため*/
+   128	  //if(c == 'y')
+   129	  //{
+   130	  //printf("quit success.\n\n");
+   131		  exit(0);
+   132		  //}
+   133		  //else if(c == 'n')
+   134		  //{
+   135		  //printf("quit cancelled.\n\n");
+   136		  //break;
+   137		  //}
+   138		  //}
+   139	}
+   140	
+   141	void cmd_check(void)
+   142	{
+   143	  printf("%d profile(s)\n", profile_data_nitems);
+   144	}
+   145	
+   146	void cmd_print(char *param)
+   147	{
+   148	  int a = 0;
+   149	  int i = 0;                                                 /*forループ用*/
+   150	
+   151	  a = atoi(param);                                           /*文字列をint型の値に変換*/
+   152	
+   153	  /*aの絶対値がprofile_data_nitemsより大きいときかa=0のとき*/
+   154	  if(abs(a) >= profile_data_nitems|| a == 0) a = profile_data_nitems;
+   155	
+   156	  if(a > 0)                                                  /*引数が正の整数のとき及び例外*/
+   157	    {
+   158	      for(i = 0; i < a; i++)
+   159	        {
+   160		  printf("Id:    %d\n", profile_data_store[i].id);
+   161		  printf("Name:  %s\n", profile_data_store[i].name);
+   162		  printf("Birth: %04d-%02d-%02d\n", profile_data_store[i].birthday.y, profile_data_store[i].birthday.m, profile_data_store[i].birthday.d);
+   163		  printf("Addr:  %s\n",profile_data_store[i].address);
+   164		  printf("Note:  %s\n\n",profile_data_store[i].biko);
+   165		}
+   166	    }
+   167	  else if(a < 0)                                             /*引数が負の整数のとき*/
+   168	    {
+   169	      for(i = profile_data_nitems + a; i < profile_data_nitems; i++)
+   170		{
+   171		  printf("Id:    %d\n", profile_data_store[i].id);
+   172		  printf("Name:  %s\n", profile_data_store[i].name);
+   173		  printf("Birth: %04d-%02d-%02d\n", profile_data_store[i].birthday.y, profile_data_store[i].birthday.m, profile_data_store[i].birthday.d);
+   174		  printf("Addr:  %s\n",profile_data_store[i].address);
+   175		  printf("Note:  %s\n\n",profile_data_store[i].biko);
+   176		}
+   177	    }
+   178	}
+   179	
+   180	void cmd_read()
+   181	{
+   182	  fprintf(stderr, "Read command is invoked.\n");
+   183	}
+   184	
+   185	void cmd_write()
+   186	{
+   187	  fprintf(stderr, "Write command is invoked.\n");
+   188	}
+   189	void cmd_find()
+   190	{
+   191	  fprintf(stderr, "Find command is invoked.\n");
+   192	}
+   193	
+   194	void cmd_sort()
+   195	{
+   196	  fprintf(stderr, "Sort command is invoked.\n");
+   197	}
+   198	
+   199	void new_profile(struct profile *profile_p, char *line)
+   200	{
+   201	  char *ret[10];
+   202	  char *ret2[4];                                           /*誕生日の情報
+を分割し，その先頭アドレスを保存*/
+   203	  char sep = ',';                                          /*csvファイル
+からの入力を想定しているため，カンマ*/
+   204	  char sep2 = '-';                                         /*誕生日の入力
+文字列にあるハイフンで区切るため，ハイフン*/
+   205	  int max = 10;
+   206	  int max2 = 4;
+   207	  int c, birth_c;
+   208	  int MAX_BIKO = 0;                                        /*備考の文字数
+カウント用*/
+   209	  
+   210	  c = split(line, ret, sep, max);                          /*ID，名前などの
+情報を分割する*/
+   211	  if(c != 4)                                               /*入力形式が合わ
+ない場合*/
+   212	    {
+   213	      fprintf(stderr, "情報はID，名前，誕生日，住所，備考の順で入力される必要があり
+ます．\n処理を中止しました．\n\n");
+   214	      profile_data_nitems--;                               /*処理中止により，
+構造体に情報を書き込まないため*/
+   215	      return;
+   216	    }
+   217	  birth_c = split(ret[2], ret2, sep2, max2);               /*誕生日の年，月，
+日を分割する*/
+   218	  if(birth_c != 2)                                         /*誕生日の年，月，
+日を正常に分割できない場合*/
+   219	      {
+   220		fprintf(stderr, "誕生日は\"年-月-日\"の形で入力される必要があります．\n処理を中止
+しました．\n\n"); /*年，月，日に分割できない場合，処理を停止*/
+   221		profile_data_nitems--;                             /*処理中止により，
+構造体に情報を書き込まないため*/
+   222		return;
+   223	      }
+   224	
+   225	  /*構造体への情報の書き込み処理*/
+   226	  profile_p->id = atoi(ret[0]);                            /*IDの書き込み*/
+   227	  strncpy(profile_p->name, ret[1], 69);                    /*名前の書き込み*/
+   228	  (profile_p->birthday).y = atoi(ret2[0]);                 /*誕生年の書き込み*/
+   229	  (profile_p->birthday).m = atoi(ret2[1]);                 /*誕生月の書き込み*/
+   230	  (profile_p->birthday).d = atoi(ret2[2]);                 /*誕生日の書き込み*/
+   231	  strncpy(profile_p->address, ret[3], 69);                 /*住所の書き込み*/
+   232	
+   233	  MAX_BIKO = strlen(ret[4]) + 1;                           /*備考情報の文字数
+のカウント*/
+   234	
+   235	  profile_p->biko = (char *)malloc(sizeof(char) * MAX_BIKO); /*文字数分だけ
+メモリ確保*/
+   236	  strncpy(profile_p->biko, ret[4], MAX_BIKO);              /*備考の書き込み*/
+   237	}
+   238	
+   239	int main(void)
+   240	{
+   241	  char LINE[MAX_LINE] = {0};                               /*入力文字列(1行分)は
+main関数で管理*/
+   242	
+   243	  while(get_line(LINE))                                    /*文字配列LINEに文字列
+を入力する*/
+   244	    {
+   245	      parse_line(LINE);                                    /*入力文字列がある場合，
+構文解析を行う*/
+   246	    }
+   247	  return 0;
+   248	}
 \end{Verbatim}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
