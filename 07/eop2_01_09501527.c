@@ -1,9 +1,9 @@
 #include <stdio.h>
-#include <string.h>                                        /*strncpy関数等用*/
-#include <stdlib.h>                                        /*exit関数用*/
+#include <string.h>                                          /*strncpy関数等用*/
+#include <stdlib.h>                                          /*exit関数用*/
 
-#define ESC 27                                             /*文字列ESCをESCのASCIIコードで置換*/
-#define MAX_LINE 1025                                      /*文字配列LINEの最大入力数の指定用*/
+#define ESC 27                                               /*文字列ESCをESCのASCIIコードで置換*/
+#define MAX_LINE 1025                                        /*文字配列LINEの最大入力数の指定用*/
 
 /*構造体宣言*/
 struct date
@@ -38,43 +38,43 @@ void cmd_sort();
 void new_profile(struct profile *profile_p, char *line);
 
 /*グローバル変数宣言*/
-struct profile profile_data_store[10000];                  /*profile情報を格納*/
-int profile_data_nitems = 0;                               /*profile情報の保存数を格納*/
-int get_line_mode = 0;                                   /*get_line()関数のstdin/fp切り替え*/
+struct profile profile_data_store[10000];                    /*profile情報を格納*/
+int profile_data_nitems = 0;                                 /*profile情報の保存数を格納*/
+int get_line_mode = 0;                                       /*get_line()関数のstdin/fp切り替え*/
 FILE *fp;
 
 int subst(char *str, char c1, char c2)
 {
-  int i;                                                   /*forループ用*/
-  int c = 0;                                               /*置き換えた文字数のカウント用*/
-  for(i = 0; *(str + i) != '\0'; i++)                      /*入力文字列の終端に辿り着くまでループ*/
+  int i;                                                     /*forループ用*/
+  int c = 0;                                                 /*置き換えた文字数のカウント用*/
+  for(i = 0; *(str + i) != '\0'; i++)                        /*入力文字列の終端に辿り着くまでループ*/
     {
-      if(c1 == c2) break;                                  /*見た目上文字列に変化がないとき*/
-      if(*(str + i) == c1)                                 /*(str + i)の文字がc1の文字と同じとき*/
+      if(c1 == c2) break;                                    /*見た目上文字列に変化がないとき*/
+      if(*(str + i) == c1)                                   /*(str + i)の文字がc1の文字と同じとき*/
 	{
-	  *(str + i) = c2;                                 /*(str + i)の文字をc2の文字に置き換える*/
-	  c++;                                             /*置き換えた文字を数える*/
+	  *(str + i) = c2;                                   /*(str + i)の文字をc2の文字に置き換える*/
+	  c++;                                               /*置き換えた文字を数える*/
 	}
     }
-  return c;                                                /*置き換えた文字数を戻り値とする．*/
+  return c;                                                  /*置き換えた文字数を戻り値とする．*/
 }
 
 int split(char *str, char *ret[], char sep, int max)
 {
-  int i;                                                   /*forループ用*/
-  int c = 0;                                               /*ポインタの配列の指定用*/
+  int i;                                                     /*forループ用*/
+  int c = 0;                                                 /*ポインタの配列の指定用*/
 
   ret[c++] = str;                                            /*ret[0]にstrの先頭アドレスを代入*/
 
-  for(i = 0; *(str + i) != '\0'&& c < max; i++)            /*cがmaxより小さいかつ入力文字列の終端に辿り着いていないときループ*/
+  for(i = 0; *(str + i) != '\0'&& c < max; i++)              /*cがmaxより小さいかつ入力文字列の終端に辿り着いていないときループ*/
     {
-      if(*(str + i) == sep)                                /*(str + i)がsepのとき*/
+      if(*(str + i) == sep)                                  /*(str + i)がsepのとき*/
 	{
-	  *(str + i) = '\0';                               /*(str + i)にNULLを代入*/
+	  *(str + i) = '\0';                                 /*(str + i)にNULLを代入*/
 	  ret[c++] = str + (i + 1);                          /*ret[c]にNULL文字の"次の"アドレスを代入*/
 	}
     }
-  return c;                                                /*文字列をいくつに分割したかを戻り値とする*/
+  return c;                                                  /*文字列をいくつに分割したかを戻り値とする*/
 }
 
 int get_line(char *line)
@@ -82,31 +82,35 @@ int get_line(char *line)
   switch(get_line_mode)
     {
     case 0:
-      if(fgets(line, MAX_LINE, stdin) == NULL) return 0;       /*入力文字列が空のとき，0を戻り値とする．入力文字列は1024文字*/
+      if(fgets(line, MAX_LINE, stdin) == NULL) return 0;     /*入力文字列が空のとき，0を戻り値とする．入力文字列は1024文字*/
       if(*line == ESC) cmd_quit();
       break;
     case 1:
-      if(fgets(line, MAX_LINE, fp) == NULL) return 0;       /*入力文字列が空のとき，0を戻り値とする．入力文字列は1024文字*/  
+      if(fgets(line, MAX_LINE, fp) == NULL) return 0;        /*入力文字列が空のとき，0を戻り値とする．入力文字列は1024文字*/  
       break;
     }
-  subst(line, '\n', '\0');                                 /*subst関数により，入力の改行文字を終端文字に置き換える*/
-  return 1;                                                /*入力文字列が存在したとき，1を戻り値とする*/
+  subst(line, '\n', '\0');                                   /*subst関数により，入力の改行文字を終端文字に置き換える*/
+  return 1;                                                  /*入力文字列が存在したとき，1を戻り値とする*/
 }
 
 void parse_line(char *line)
 {
-  char cmd;                                                /*%の次の1文字を格納用*/
-  char *param;                                             /*コマンドのパラメータとなる文字列へのポインタ用*/
+  char cmd;                                                  /*%の次の1文字を格納用*/
+  char *param;                                               /*コマンドのパラメータとなる文字列へのポインタ用*/
 
-  if(*line == '%')                                         /*入力文字列の1文字目が%のとき*/
+  if(*line == '%')                                           /*入力文字列の1文字目が%のとき*/
     {
-      cmd = *(line + 1);                                   /*cmdに入力文字列の2文字目の値を代入*/
-      param = line + 3;                                    /*paramにパラメータ部を代入*/
+      cmd = *(line + 1);                                     /*cmdに入力文字列の2文字目の値を代入*/
+      param = line + 3;                                      /*paramにパラメータ部を代入*/
       exec_command(cmd, param);
     }
-  else if(profile_data_nitems < 10000)                     /*入力がコマンドではなく，登録数が1万件以下のとき*/
+  else if(profile_data_nitems < 10000)                       /*入力がコマンドではなく，登録数が1万件以下のとき*/
     {
       new_profile(&profile_data_store[profile_data_nitems++] ,line);
+    }
+  else
+    {
+      fprintf(stderr, "Warning: 10000万件を超える名簿データは読み込めません．\n");
     }
 }
 
@@ -154,14 +158,14 @@ void cmd_check(void)
 void cmd_print(char *param)
 {
   int a = 0;
-  int i = 0;                                                 /*forループ用*/
+  int i = 0;                                             /*forループ用*/
 
-  a = atoi(param);                                           /*文字列をint型の値に変換*/
+  a = atoi(param);                                       /*文字列をint型の値に変換*/
 
   /*aの絶対値がprofile_data_nitemsより大きいときかa=0のとき*/
   if(abs(a) >= profile_data_nitems|| a == 0) a = profile_data_nitems;
 
-  if(a > 0)                                                  /*引数が正の整数のとき及び例外*/
+  if(a > 0)                                              /*引数が正の整数のとき及び例外*/
     {
       for(i = 0; i < a; i++)
         {
@@ -172,7 +176,7 @@ void cmd_print(char *param)
 	  printf("Comm. : %s\n\n",profile_data_store[i].biko);
 	}
     }
-  else if(a < 0)                                             /*引数が負の整数のとき*/
+  else if(a < 0)                                         /*引数が負の整数のとき*/
     {
       for(i = profile_data_nitems + a; i < profile_data_nitems; i++)
 	{
@@ -189,9 +193,9 @@ void cmd_read(char *param)
 {
   char LINE[MAX_LINE] = {0};
 
-  if((fp = fopen(param, "r")) == NULL)                 /*指定されたファイル名が存在しない場合*/
+  if((fp = fopen(param, "r")) == NULL)                    /*指定されたファイル名が存在しない場合*/
     {
-      fprintf(stderr, "\"%s\"はカレントディレクトリに存在しません.\n\n", param);
+      fprintf(stderr, "\"%s\"を読み込めません．カレントディレクトリにファイルが存在しないか，読み取り許可がない可能性があります．\n\n", param);
       return;
     }
 
@@ -211,7 +215,7 @@ void cmd_write(char *param)
 
   if((fp = fopen(param, "w")) == NULL)                    /*指定されたファイル名が存在しない場合*/
     {
-      fprintf(stderr, "\"%s\"を開くことができませんでした.\n\n", param);
+      fprintf(stderr, "\"%s\"に書き込めません．書き込み許可がない可能性があります．\n\n", param);
       return;
     }
 
