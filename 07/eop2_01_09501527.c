@@ -104,7 +104,7 @@ void parse_line(char *line)
       param = line + 3;                                    /*paramにパラメータ部を代入*/
       exec_command(cmd, param);
     }
-  else if(profile_data_nitems <= 10000)                    /*入力がコマンドではなく，登録数が1万件以下のとき*/
+  else if(profile_data_nitems < 10000)                     /*入力がコマンドではなく，登録数が1万件以下のとき*/
     {
       new_profile(&profile_data_store[profile_data_nitems++] ,line);
     }
@@ -187,20 +187,11 @@ void cmd_print(char *param)
 
 void cmd_read(char *param)
 {
-  char *filename;
   char LINE[MAX_LINE] = {0};
-  int MAX_FILENAME = 0;
 
-  MAX_FILENAME = strlen(param) + 1;                       /*指定されたファイル名の文字数のカウント*/
-
-  filename = (char *)malloc(sizeof(char) * MAX_FILENAME); /*文字数分だけメモリ確保*/
-
-  strncpy(filename, param, MAX_FILENAME);
-
-  if((fp = fopen(filename, "r")) == NULL)                 /*指定されたファイル名が存在しない場合*/
+  if((fp = fopen(param, "r")) == NULL)                 /*指定されたファイル名が存在しない場合*/
     {
-      fprintf(stderr, "\"%s\"はカレントディレクトリに存在しません.\n\n", filename);
-      free(filename);                                     /*malloc()関数で確保した使用済みメモリを解放*/
+      fprintf(stderr, "\"%s\"はカレントディレクトリに存在しません.\n\n", param);
       return;
     }
 
@@ -212,25 +203,15 @@ void cmd_read(char *param)
   get_line_mode = 0;                                      /*get_line()関数をstdinモードにする*/
 
   fclose(fp);
-  free(filename);	   				  /*malloc()関数で確保した使用済みメモリを解放*/
 }
 
 void cmd_write(char *param)
 {
-  char *filename;
-  int MAX_FILENAME = 0;
   int i;                                                  /*forループ用*/
 
-  MAX_FILENAME = strlen(param) + 1;                       /*指定されたファイル名の文字数のカウント*/
-
-  filename = (char *)malloc(sizeof(char) * MAX_FILENAME); /*文字数分だけメモリ確保*/
-
-  strncpy(filename, param, MAX_FILENAME);
-
-  if((fp = fopen(filename, "w")) == NULL)                 /*指定されたファイル名が存在しない場合*/
+  if((fp = fopen(param, "w")) == NULL)                    /*指定されたファイル名が存在しない場合*/
     {
-      fprintf(stderr, "\"%s\"を開くことができませんでした.\n\n", filename);
-      free(filename);                                     /*malloc()関数で確保した使用済みメモリを解放*/
+      fprintf(stderr, "\"%s\"を開くことができませんでした.\n\n", param);
       return;
     }
 
@@ -244,7 +225,6 @@ void cmd_write(char *param)
     }
 
   fclose(fp);
-  free(filename);	   				  /*malloc()関数で確保した使用済みメモリを解放*/
 }
 void cmd_find()
 {
