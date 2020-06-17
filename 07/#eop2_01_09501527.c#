@@ -41,7 +41,7 @@ void new_profile(struct profile *profile_p, char *line);
 struct profile profile_data_store[10000];                    /*profile情報を格納*/
 int profile_data_nitems = 0;                                 /*profile情報の保存数を格納*/
 int get_line_mode = 0;                                       /*get_line()関数のstdin/fp切り替え*/
-FILE *fp;
+FILE *fp;         
 
 int subst(char *str, char c1, char c2)
 {
@@ -219,7 +219,6 @@ void cmd_write(char *param)
       return;
     }
 
-  /*CSV形式で出力*/
   for(i = 0; i < profile_data_nitems; i++)
     {
       fprintf(fp, "%d,", profile_data_store[i].id);
@@ -251,20 +250,18 @@ void new_profile(struct profile *profile_p, char *line)
   int max2 = 4;
   int c, birth_c;
   int MAX_BIKO = 0;                                        /*備考の文字数カウント用*/
-  static int i = 0;                                        /*入力項目の行番号監視*/
   
-  i++;
   c = split(line, ret, sep, max);                          /*ID，名前などの情報を分割する*/
   if(c != 5)                                               /*入力形式が合わない場合*/
     {
-      fprintf(stderr, "情報はID，名前，誕生日，住所，備考の順で入力される必要があります．\n処理を中止しました(項目番号:%d)．\n\n", i);
+      fprintf(stderr, "情報はID，名前，誕生日，住所，備考の順で入力される必要があります．\n処理を中止しました．\n\n");
       profile_data_nitems--;                               /*処理中止により，構造体に情報を書き込まないため*/
       return;
     }
   birth_c = split(ret[2], ret2, sep2, max2);               /*誕生日の年，月，日を分割する*/
   if(birth_c != 3)                                         /*誕生日の年，月，日を正常に分割できない場合*/
       {
-	fprintf(stderr, "誕生日は\"年-月-日\"の形で入力される必要があります．\n処理を中止しました(項目番号:%d)．\n\n", i); /*年，月，日に分割できない場合，処理を停止*/
+	fprintf(stderr, "誕生日は\"年-月-日\"の形で入力される必要があります．\n処理を中止しました．\n\n"); /*年，月，日に分割できない場合，処理を停止*/
 	profile_data_nitems--;                             /*処理中止により，構造体に情報を書き込まないため*/
 	return;
       }
