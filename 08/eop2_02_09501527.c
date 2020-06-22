@@ -25,7 +25,7 @@ struct profile
 /*関数プロトタイプ宣言（煩雑化防止）*/
 int subst(char *str, char c1, char c2);
 int split(char *str, char *ret[], char sep, int max);
-int get_line(char *line);
+int get_line(FILE *F, char *line);
 void parse_line(char *line);
 void exec_command(char cmd, char *param);
 void cmd_quit(void);
@@ -40,8 +40,6 @@ void new_profile(struct profile *profile_p, char *line);
 /*グローバル変数宣言*/
 struct profile profile_data_store[10000];                    /*profile情報を格納*/
 int profile_data_nitems = 0;                                 /*profile情報の保存数を格納*/
-int get_line_mode = 0;                                       /*get_line()関数のstdin/fp切り替え*/
-FILE *fp;
 
 int subst(char *str, char c1, char c2)
 {
@@ -77,18 +75,12 @@ int split(char *str, char *ret[], char sep, int max)
   return c;                                                  /*文字列をいくつに分割したかを戻り値とする*/
 }
 
-int get_line(char *line)
+int get_line(FILE *F, char *line)
 {
-  switch(get_line_mode)
-    {
-    case 0:
-      if(fgets(line, MAX_LINE, stdin) == NULL) return 0;     /*入力文字列が空のとき，0を戻り値とする．入力文字列は1024文字*/
-      if(*line == ESC) cmd_quit();
-      break;
-    case 1:
-      if(fgets(line, MAX_LINE, fp) == NULL) return 0;        /*入力文字列が空のとき，0を戻り値とする．入力文字列は1024文字*/  
-      break;
-    }
+
+  if(fgets(line, MAX_LINE, F) == NULL) return 0;     /*入力文字列が空のとき，0を戻り値とする．入力文字列は1024文字*/
+  if(*line == ESC) cmd_quit();
+
   subst(line, '\n', '\0');                                   /*subst関数により，入力の改行文字を終端文字に置き換える*/
   return 1;                                                  /*入力文字列が存在したとき，1を戻り値とする*/
 }
@@ -192,6 +184,7 @@ void cmd_print(char *param)
 void cmd_read(char *param)
 {
   char LINE[MAX_LINE] = {0};
+  FILE *fp;
 
   if((fp = fopen(param, "r")) == NULL)                    /*指定されたファイル名が存在しない場合*/
     {
@@ -199,12 +192,10 @@ void cmd_read(char *param)
       return;
     }
 
-  get_line_mode = 1;                                      /*get_line()関数をfpモードにする*/
-  while(get_line(LINE))                                   /*文字配列LINEに文字列を入力する*/
+  while(get_line(fp ,LINE))                               /*文字配列LINEに文字列を入力する*/
     {
       parse_line(LINE);                                   /*入力文字列がある場合，構文解析を行う*/
     }
-  get_line_mode = 0;                                      /*get_line()関数をstdinモードにする*/
 
   fclose(fp);
 }
@@ -212,6 +203,7 @@ void cmd_read(char *param)
 void cmd_write(char *param)
 {
   int i;                                                  /*forループ用*/
+  FILE *fp;
 
   if((fp = fopen(param, "w")) == NULL)                    /*指定されたファイル名が存在しない場合*/
     {
@@ -287,7 +279,7 @@ int main(void)
 {
   char LINE[MAX_LINE] = {0};                               /*入力文字列(1行分)はmain関数で管理*/
 
-  while(get_line(LINE))                                    /*文字配列LINEに文字列を入力する*/
+  while(get_line(stdin, LINE))                                    /*文字配列LINEに文字列を入力する*/
     {
       parse_line(LINE);                                    /*入力文字列がある場合，構文解析を行う*/
     }
