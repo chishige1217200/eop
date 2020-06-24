@@ -87,6 +87,7 @@ int get_line(FILE *F, char *line)
 
 void parse_line(char *line)
 {
+  static int i = 1;
   char cmd;                                                  /*%の次の1文字を格納用*/
   char *param;                                               /*コマンドのパラメータとなる文字列へのポインタ用*/
 
@@ -102,7 +103,8 @@ void parse_line(char *line)
     }
   else
     {
-      fprintf(stderr, "Warning: 10000万件を超える名簿データは読み込めません．\n");
+      fprintf(stderr, "Warning: 10000件を超える名簿データは読み込めません．計%d件の登録が中止されました．\n", i);
+      i++;
     }
 }
 
@@ -230,7 +232,7 @@ void cmd_find(char *param)
   char num2[36];
   struct profile *p;
 
-  for(i = 0;i < profile_data_nitems; i++)
+  for(i = 0; i < profile_data_nitems; i++)
     {
       p = &profile_data_store[i];
 
