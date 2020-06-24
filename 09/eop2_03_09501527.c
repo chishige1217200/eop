@@ -321,11 +321,11 @@ void new_profile(struct profile *profile_p, char *line)
 
 int int_value_check(char *str)
 {
-  while(*str)                              /*入力文字列の終端に辿り着くまでループ*/
+  do                                       /*入力文字列の終端に辿り着くまでループ*/
     {
       if(*str >= 48 && *str <= 57 ) str++; /*確認する文字が0~9の場合，次の文字を確認*/
       else return 1;                       /*確認する文字が0〜9で無い場合，戻り値1*/
-    }
+    }while(*str);
   return 0;  
 }
 
