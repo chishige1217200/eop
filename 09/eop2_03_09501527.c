@@ -36,6 +36,7 @@ void cmd_write(char *param);
 void cmd_find(char *param);
 void cmd_sort();
 void new_profile(struct profile *profile_p, char *line);
+int int_value_check(char *str);
 
 /*グローバル変数宣言*/
 struct profile profile_data_store[10000];                    /*profile情報を格納*/
@@ -282,11 +283,27 @@ void new_profile(struct profile *profile_p, char *line)
     }
   birth_c = split(ret[2], ret2, sep2, max2);               /*誕生日の年，月，日を分割する*/
   if(birth_c != 3)                                         /*誕生日の年，月，日を正常に分割できない場合*/
-      {
-	fprintf(stderr, "誕生日は\"年-月-日\"の形で入力される必要があります．\n処理を中止しました(項目番号:%d)．\n\n", i); /*年，月，日に分割できない場合，処理を停止*/
-	profile_data_nitems--;                             /*処理中止により，構造体に情報を書き込まないため*/
-	return;
-      }
+    {
+      fprintf(stderr, "誕生日は\"年-月-日\"の形で入力される必要があります．\n処理を中止しました(項目番号:%d)．\n\n", i); /*年，月，日に分割できない場合，処理を停止*/
+      profile_data_nitems--;                               /*処理中止により，構造体に情報を書き込まないため*/
+      return;
+    }
+
+  /*atoi関数で正常に文字列をint値に変換できるかの確認を実施*/
+  if(int_value_check(ret[0]))
+    {
+      fprintf(stderr,"IDの項目は数値である必要があります．\n処理を中止しました(項目番号:%d)．\n\n", i);
+      profile_data_nitems--;
+      return;
+    }
+  if(int_value_check(ret2[0]) ||
+     int_value_check(ret2[1]) ||
+     int_value_check(ret2[2]) )
+    {
+      fprintf(stderr,"誕生年，月，日の項目は数値である必要があります．\n処理を中止しました(項目番号:%d)．\n\n", i);
+      profile_data_nitems--;
+      return;
+    }
 
   /*構造体への情報の書き込み処理*/
   profile_p->id = atoi(ret[0]);                            /*IDの書き込み*/
@@ -302,11 +319,21 @@ void new_profile(struct profile *profile_p, char *line)
   strncpy(profile_p->biko, ret[4], MAX_BIKO);              /*備考の書き込み*/
 }
 
+int int_value_check(char *str)
+{
+  while(*str)                              /*入力文字列の終端に辿り着くまでループ*/
+    {
+      if(*str >= 48 && *str <= 57 ) str++; /*確認する文字が0~9の場合，次の文字を確認*/
+      else return 1;                       /*確認する文字が0〜9で無い場合，戻り値1*/
+    }
+  return 0;  
+}
+
 int main(void)
 {
   char LINE[MAX_LINE] = {0};                               /*入力文字列(1行分)はmain関数で管理*/
 
-  while(get_line(stdin, LINE))                                    /*文字配列LINEに文字列を入力する*/
+  while(get_line(stdin, LINE))                             /*文字配列LINEに文字列を入力する*/
     {
       parse_line(LINE);                                    /*入力文字列がある場合，構文解析を行う*/
     }
