@@ -220,7 +220,7 @@ void cmd_write(char *param)
     {
       fprintf(fp, "%d,", profile_data_store[i].id);
       fprintf(fp, "%s,", profile_data_store[i].name);
-      fprintf(fp, "%d-%d-%d,", profile_data_store[i].birthday.y, profile_data_store[i].birthday.m, profile_data_store[i].birthday.d);
+      fprintf(fp, "%04d-%02d-%02d,", profile_data_store[i].birthday.y, profile_data_store[i].birthday.m, profile_data_store[i].birthday.d);
       fprintf(fp, "%s,",profile_data_store[i].address);
       fprintf(fp, "%s\n",profile_data_store[i].biko);
     }
