@@ -34,7 +34,7 @@ void cmd_print(char *param);
 void cmd_read(char *param);
 void cmd_write(char *param);
 void cmd_find(char *param);
-void cmd_sort(int param);
+void cmd_sort(char *param);
 void data_move(struct profile *sp1, struct profile *sp2);
 void new_profile(struct profile *profile_p, char *line);
 int int_value_check(char *str);
@@ -91,7 +91,7 @@ void parse_line(char *line)
 {
   static int i = 1;
   char cmd;                                                  /*%の次の1文字を格納用*/
-  char *param;                                               /*コマンドのパラメータとなる文字列へのポインタ用*/
+  char *param = NULL;                                        /*コマンドのパラメータとなる文字列へのポインタ用*/
 
   if(*line == '%')                                           /*入力文字列の1文字目が%のとき*/
     {
@@ -119,7 +119,7 @@ void exec_command(char cmd, char *param)
   case 'R': cmd_read(param);   break;
   case 'W': cmd_write(param);  break;
   case 'F': cmd_find(param);   break;
-  case 'S': cmd_sort(atoi(param));   break;
+  case 'S': cmd_sort(param);   break;
   default: fprintf(stderr, "Invalid command %c: ignored.\n", cmd); break;/*エラーメッセージを表示*/
   }
 }
@@ -156,6 +156,17 @@ void cmd_print(char *param)
   int a = 0;
   int i = 0;                                             /*forループ用*/
 
+  /*この処理はparse_line関数内の文字列分割処理後に実装*/
+
+  /*atoi関数で正常に文字列をint値に変換できるかの確認を実施*/
+  /*if(param == NULL)
+    {
+      if(int_value_check(param))
+	{
+	  fprintf(stderr,"引数は数値である必要があります．\n処理を中止しました．\n\n");
+	  return;
+	}
+	}*/
   a = atoi(param);                                       /*文字列をint型の値に変換*/
 
   /*aの絶対値がprofile_data_nitemsより大きいときかa=0のとき*/
@@ -220,7 +231,7 @@ void cmd_write(char *param)
     {
       fprintf(fp, "%d,", profile_data_store[i].id);
       fprintf(fp, "%s,", profile_data_store[i].name);
-      fprintf(fp, "%04d-%02d-%02d,", profile_data_store[i].birthday.y, profile_data_store[i].birthday.m, profile_data_store[i].birthday.d);
+      fprintf(fp, "%d-%d-%d,", profile_data_store[i].birthday.y, profile_data_store[i].birthday.m, profile_data_store[i].birthday.d);
       fprintf(fp, "%s,",profile_data_store[i].address);
       fprintf(fp, "%s\n",profile_data_store[i].biko);
     }
@@ -230,8 +241,8 @@ void cmd_write(char *param)
 void cmd_find(char *param)
 {
   int i = 0;                                              /*forループ用*/
-  char num1[12];
-  char num2[36];
+  char num1[12];                                          /*int値を文字列に変換する際に使用*/
+  char num2[36];                                          /*int値を文字列に変換する際に使用*/
   struct profile *p;
 
   for(i = 0; i < profile_data_nitems; i++)
@@ -257,57 +268,78 @@ void cmd_find(char *param)
     }
 }
 
-void cmd_sort(int param)
+void cmd_sort(char *param)
 {
-  int i1 = 0;
-  int i2 = 0;
-  char num1[50];
-  char num2[50];
+  int a = 0;
+  int a_buff = 0;                                          /*param変換後の値保持用*/  
+  int i1 = 0;                                              /*バブルソート用の右端を決める*/
+  int i2 = 0;                                              /*バブルソートの探索用*/
+  char num1[36];                                           /*int値を文字列に変換する際に使用*/
+  char num2[36];                                           /*int値を文字列に変換する際に使用*/
   struct profile *sp1;
   struct profile *sp2;
-  char *cp1;
-  char *cp2;
+  char *cp1;                                               /*任意文字列の先頭アドレスを保持*/
+  char *cp2;                                               /*任意文字列の先頭アドレスを保持*/
+
+  /*atoi関数で正常に文字列をint値に変換できるかの確認を実施*/
+  if(int_value_check(param))
+    {
+      fprintf(stderr,"引数は数値である必要があります．\n処理を中止しました．\n\n");
+      return;
+    }
+  a_buff = atoi(param);
+
+  if(a_buff < 1 || a_buff > 5)
+    {
+      fprintf(stderr, "引数は1から5のいずれかの数値である必要があります．処理を中止しました．\n\n");
+      return;
+    }
 
   for(i1 = 0; i1 < profile_data_nitems; i1++)
     {
       for(i2 = 0; i2 < profile_data_nitems - i1 - 1; i2++)
 	{
-	  sp1 = &profile_data_store[i2];
-	  sp2 = &profile_data_store[i2 + 1];
-	  
-	  if(param == 1)
-	    {
-	      sprintf(num1, "%d", sp1->id);
-	      sprintf(num2, "%d", sp2->id);
-	      cp1 = num1;
-	      cp2 = num2;
-	    }
-	  
-	  if(param == 2)
+	  a = a_buff;                                      /*例外対策処理用で毎度aを初期化*/
+	  sp1 = &profile_data_store[i2];                   /*名簿データの先頭アドレスを登録*/
+	  sp2 = &profile_data_store[i2 + 1];               /*1つ後ろの名簿データの先頭アドレスを登録*/
+
+	  if(a == 2)
 	    {
 	      cp1 = sp1->name;
 	      cp2 = sp2->name;
+	      if(strcmp(cp1, cp2) == 0) a = 1;             /*項目が一致していた場合は，IDの昇順になるように並び変える*/
 	    }
 	  
-	  if(param == 3)
+	  if(a == 3)
 	    {
-	      sprintf(num1, "%04d%02d%02d", (sp1->birthday).y, (sp1->birthday).m, (sp1->birthday).d);
-	      sprintf(num2, "%04d%02d%02d", (sp2->birthday).y, (sp2->birthday).m, (sp2->birthday).d);
+	      sprintf(num1, "%010d%010d%010d", (sp1->birthday).y, (sp1->birthday).m, (sp1->birthday).d);
+	      sprintf(num2, "%010d%010d%010d", (sp2->birthday).y, (sp2->birthday).m, (sp2->birthday).d);
 	      cp1 = num1;
 	      cp2 = num2;
+	      if(strcmp(cp1, cp2) == 0) a = 1;             /*項目が一致していた場合は，IDの昇順になるように並び変える*/
 	    }
 	  
-	  if(param == 4)
+	  if(a == 4)
 	    {
 	      cp1 = sp1->address;
 	      cp2 = sp2->address;
+	      if(strcmp(cp1, cp2) == 0) a = 1;             /*項目が一致していた場合は，IDの昇順になるように並び変える*/
 	    }
-	  if(param == 5)
+	  if(a == 5)
 	    {
 	      cp1 = sp1->biko;
 	      cp2 = sp2->biko;
+	      if(strcmp(cp1, cp2) == 0) a = 1;             /*項目が一致していた場合は，IDの昇順になるように並び変える*/
 	    }
-	  
+ 	  
+	  if(a == 1)
+	    {
+	      sprintf(num1, "%010d", sp1->id);
+	      sprintf(num2, "%010d", sp2->id);
+	      cp1 = num1;
+	      cp2 = num2;
+	    }
+
 	  if(strcmp(cp1, cp2) > 0) data_move(sp1, sp2);
 	}
     }
@@ -317,7 +349,7 @@ void data_move(struct profile *sp1, struct profile *sp2)
 {
   struct profile swap_data;
   
-  /*sp1のデータをswa*/
+  /*sp1のデータをswap_dataに退避*/
   swap_data.id = sp1->id;
   strcpy(swap_data.name, sp1->name);
   swap_data.birthday.y = (sp1->birthday).y;
@@ -326,6 +358,7 @@ void data_move(struct profile *sp1, struct profile *sp2)
   strcpy(swap_data.address, sp1->address);
   swap_data.biko = sp1->biko;
 
+  /*sp2のデータをsp1に移動*/
   sp1->id = sp2->id;
   strcpy(sp1->name, sp2->name);
   (sp1->birthday).y = (sp2->birthday).y;
@@ -334,6 +367,7 @@ void data_move(struct profile *sp1, struct profile *sp2)
   strcpy(sp1->address, sp2->address);
   sp1->biko = sp2->biko;
   
+  /*swap_dataをsp2に移動*/
   sp2->id = swap_data.id;
   strcpy(sp2->name, swap_data.name);
   (sp2->birthday).y = (swap_data.birthday).y;
@@ -341,7 +375,6 @@ void data_move(struct profile *sp1, struct profile *sp2)
   (sp2->birthday).d = (swap_data.birthday).d;
   strcpy(sp2->address, swap_data.address);
   sp2->biko = swap_data.biko;
-
 }
 
 void new_profile(struct profile *profile_p, char *line)
@@ -407,14 +440,14 @@ int int_value_check(char *str)
   do                                       /*入力文字列の終端に辿り着くまでループ*/
     {
       if(*str >= 48 && *str <= 57 ) str++; /*確認する文字が0~9の場合，次の文字を確認*/
-      else return 1;                       /*確認する文字が0〜9で無い場合，戻り値1*/
+      else return 1;                       /*確認する文字が0~9で無い場合，戻り値1*/
     }while(*str);
   return 0;  
 }
 
 int main(void)
 {
-  char LINE[MAX_LINE] = {0};                               /*入力文字列(1行分)はmain関数で管理*/
+  char LINE[MAX_LINE] = {0};                               /*標準入力文字列(1行分)はmain関数で管理*/
 
   while(get_line(stdin, LINE))                             /*文字配列LINEに文字列を入力する*/
     {
