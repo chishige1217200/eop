@@ -27,7 +27,7 @@ int subst(char *str, char c1, char c2);
 int split(char *str, char *ret[], char sep, int max);
 int get_line(FILE *F, char *line);
 void parse_line(char *line);
-void exec_command(char cmd, char *param);
+void exec_command(char *cmd, char *param);
 void cmd_quit(void);
 void cmd_check(void);
 void cmd_print(char *param);
@@ -89,15 +89,14 @@ int get_line(FILE *F, char *line)
 
 void parse_line(char *line)
 {
-  static int i = 1;
-  char cmd;                                                  /*%の次の1文字を格納用*/
-  char *param = NULL;                                        /*コマンドのパラメータとなる文字列へのポインタ用*/
+  static int i = 1;                                          /*登録中止数カウント用*/
+  char *ret[2] = {NULL, NULL};                               /*コマンド文字列のポインタ，引数文字列のポインタ用*/
 
   if(*line == '%')                                           /*入力文字列の1文字目が%のとき*/
     {
-      cmd = *(line + 1);                                     /*cmdに入力文字列の2文字目の値を代入*/
-      param = line + 3;                                      /*paramにパラメータ部を代入*/
-      exec_command(cmd, param);
+      line++;
+      split(line, ret, 32, 2);
+      exec_command(ret[0], ret[1]);
     }
   else if(profile_data_nitems < 10000)                       /*入力がコマンドではなく，登録数が1万件以下のとき*/
     {
@@ -110,9 +109,11 @@ void parse_line(char *line)
     }
 }
 
-void exec_command(char cmd, char *param)
+void exec_command(char *cmd, char *param)
 {
-  switch (cmd) {
+  /*strcmpの導入*/
+
+  switch (*cmd) {
   case 'Q': cmd_quit();   break;
   case 'C': cmd_check();  break;
   case 'P': cmd_print(param);  break;
@@ -120,30 +121,30 @@ void exec_command(char cmd, char *param)
   case 'W': cmd_write(param);  break;
   case 'F': cmd_find(param);   break;
   case 'S': cmd_sort(param);   break;
-  default: fprintf(stderr, "Invalid command %c: ignored.\n", cmd); break;/*エラーメッセージを表示*/
+  default: fprintf(stderr, "不明なコマンド\"%s\"です．処理を中止しました．\n\n", cmd); break;/*エラーメッセージを表示*/
   }
 }
 
 void cmd_quit(void)
 {
-  //char c;
-
-  //while(1)
-  //{
-  //  printf("Do you want to quit?(y/n)\n");               /*確認メッセージ*/
-  //  c = getchar();
-  //  getchar();                                           /*getcharでの入力時に改行文字が残ってしまうため*/
-  //  if(c == 'y')
-  //	{
-  //	  printf("quit success.\n\n");
+  char c;
+  
+  while(1)
+    {
+      printf("終了しますか?(y/n)\n");                      /*確認メッセージ*/
+      c = getchar();
+      getchar();                                         /*getcharでの入力時に改行文字が残ってしまうため*/
+      if(c == 'y')
+  	{
+  	  printf("正常終了．\n\n");
 	  exit(0);
-	  //	}
-	  //    else if(c == 'n')
-	  //{
-	  //printf("quit cancelled.\n\n");
-	  //break;
-	  //}
-	  //}
+	}
+      else if(c == 'n')
+	{
+	  printf("処理を中止しました．\n\n");
+	  break;
+	}
+    }
 }
 
 void cmd_check(void)
@@ -156,18 +157,17 @@ void cmd_print(char *param)
   int a = 0;
   int i = 0;                                             /*forループ用*/
 
-  /*この処理はparse_line関数内の文字列分割処理後に実装*/
-
   /*atoi関数で正常に文字列をint値に変換できるかの確認を実施*/
-  /*if(param == NULL)
+  if(param == NULL) a = 0;
+  if(param != NULL)
     {
       if(int_value_check(param))
 	{
-	  fprintf(stderr,"引数は数値である必要があります．\n処理を中止しました．\n\n");
+	  fprintf(stderr,"引数は数値である必要があります．処理を中止しました．\n\n");
 	  return;
 	}
-	}*/
-  a = atoi(param);                                       /*文字列をint型の値に変換*/
+      a = atoi(param);                                   /*文字列をint型の値に変換*/
+    }
 
   /*aの絶対値がprofile_data_nitemsより大きいときかa=0のとき*/
   if(abs(a) >= profile_data_nitems|| a == 0) a = profile_data_nitems;
@@ -207,7 +207,7 @@ void cmd_read(char *param)
       return;
     }
 
-  while(get_line(fp ,LINE))                               /*文字配列LINEに文字列を入力する*/
+  while(get_line(fp, LINE))                               /*文字配列LINEに文字列を入力する*/
     {
       parse_line(LINE);                                   /*入力文字列がある場合，構文解析を行う*/
     }
@@ -244,6 +244,12 @@ void cmd_find(char *param)
   char num1[12];                                          /*int値を文字列に変換する際に使用*/
   char num2[36];                                          /*int値を文字列に変換する際に使用*/
   struct profile *p;
+
+  if(param == NULL)
+    {
+      fprintf(stderr, "実行には引数が必要です．処理を中止しました．\n\n");
+      return;
+    }
 
   for(i = 0; i < profile_data_nitems; i++)
     {
@@ -282,9 +288,14 @@ void cmd_sort(char *param)
   char *cp2;                                               /*任意文字列の先頭アドレスを保持*/
 
   /*atoi関数で正常に文字列をint値に変換できるかの確認を実施*/
+  if(param == NULL)
+    {
+      fprintf(stderr, "実行には引数が必要です．処理を中止しました．\n\n");
+      return;
+    }
   if(int_value_check(param))
     {
-      fprintf(stderr,"引数は数値である必要があります．\n処理を中止しました．\n\n");
+      fprintf(stderr, "引数は数値である必要があります．処理を中止しました．\n\n");
       return;
     }
   a_buff = atoi(param);
@@ -393,14 +404,14 @@ void new_profile(struct profile *profile_p, char *line)
   c = split(line, ret, sep, max);                          /*ID，名前などの情報を分割する*/
   if(c != 5)                                               /*入力形式が合わない場合*/
     {
-      fprintf(stderr, "情報はID，名前，誕生日，住所，備考の順で入力される必要があります．\n処理を中止しました(項目番号:%d)．\n\n", i);
+      fprintf(stderr, "情報はID，名前，誕生日，住所，備考の順で入力される必要があります．処理を中止しました(項目番号:%d)．\n\n", i);
       profile_data_nitems--;                               /*処理中止により，構造体に情報を書き込まないため*/
       return;
     }
   birth_c = split(ret[2], ret2, sep2, max2);               /*誕生日の年，月，日を分割する*/
   if(birth_c != 3)                                         /*誕生日の年，月，日を正常に分割できない場合*/
     {
-      fprintf(stderr, "誕生日は\"年-月-日\"の形で入力される必要があります．\n処理を中止しました(項目番号:%d)．\n\n", i); /*年，月，日に分割できない場合，処理を停止*/
+      fprintf(stderr, "誕生日は\"年-月-日\"の形で入力される必要があります．処理を中止しました(項目番号:%d)．\n\n", i); /*年，月，日に分割できない場合，処理を停止*/
       profile_data_nitems--;                               /*処理中止により，構造体に情報を書き込まないため*/
       return;
     }
@@ -408,7 +419,7 @@ void new_profile(struct profile *profile_p, char *line)
   /*atoi関数で正常に文字列をint値に変換できるかの確認を実施*/
   if(int_value_check(ret[0]))
     {
-      fprintf(stderr,"IDの項目は数値である必要があります．\n処理を中止しました(項目番号:%d)．\n\n", i);
+      fprintf(stderr,"IDの項目は数値である必要があります．処理を中止しました(項目番号:%d)．\n\n", i);
       profile_data_nitems--;
       return;
     }
@@ -416,7 +427,7 @@ void new_profile(struct profile *profile_p, char *line)
      int_value_check(ret2[1]) ||
      int_value_check(ret2[2]) )
     {
-      fprintf(stderr,"誕生年，月，日の項目は数値である必要があります．\n処理を中止しました(項目番号:%d)．\n\n", i);
+      fprintf(stderr,"誕生年，月，日の項目は数値である必要があります．処理を中止しました(項目番号:%d)．\n\n", i);
       profile_data_nitems--;
       return;
     }
