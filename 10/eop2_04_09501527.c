@@ -28,7 +28,7 @@ int split(char *str, char *ret[], char sep, int max);
 int get_line(FILE *F, char *line);
 void parse_line(char *line);
 void exec_command(char *cmd, char *param);
-void cmd_quit(void);
+void cmd_quit(char *param);
 void cmd_check(void);
 void cmd_print(char *param);
 void cmd_read(char *param);
@@ -82,7 +82,7 @@ int get_line(FILE *F, char *line)
 {
 
   if(fgets(line, MAX_LINE, F) == NULL) return 0;     /*入力文字列が空のとき，0を戻り値とする．入力文字列は1024文字*/
-  if(*line == ESC) return 0;
+  if(*line == ESC) cmd_quit("r");
 
   subst(line, '\n', '\0');                                   /*subst関数により，入力の改行文字を終端文字に置き換える*/
   return 1;                                                  /*入力文字列が存在したとき，1を戻り値とする*/
@@ -115,7 +115,7 @@ void exec_command(char *cmd, char *param)
   /*strcmpの導入*/
 
   switch (*cmd) {
-  case 'Q': cmd_quit();   break;
+  case 'Q': cmd_quit(param);   break;
   case 'C': cmd_check();  break;
   case 'P': cmd_print(param);  break;
   case 'R': cmd_read(param);   break;
@@ -126,10 +126,12 @@ void exec_command(char *cmd, char *param)
   }
 }
 
-void cmd_quit(void)
+void cmd_quit(char *param)
 {
   char c = 65;
-  
+
+  if(*param == 'r') exit(0);
+ 
   while(1)
     {
       printf("終了しますか?(y/n)\n");                      /*確認メッセージ*/
