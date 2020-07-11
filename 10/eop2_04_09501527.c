@@ -130,7 +130,8 @@ void cmd_quit(char *param)
 {
   char c = 65;
 
-  if(*param == 'r') exit(0);
+  if(param != NULL)
+    if(*param == 'r') exit(0);
  
   while(1)
     {
