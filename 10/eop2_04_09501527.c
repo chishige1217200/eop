@@ -1,9 +1,10 @@
 #include <stdio.h>
-#include <string.h>                                          /*strncpy関数等用*/
-#include <stdlib.h>                                          /*exit関数用*/
+#include <string.h>                                  /*strncpy関数等用*/
+#include <stdlib.h>                                  /*exit関数用*/
 
-#define ESC 27                                               /*文字列ESCをESCのASCIIコードで置換*/
-#define MAX_LINE 1025                                        /*文字配列LINEの最大入力数の指定用*/
+#define ESC 27                                       /*文字列ESCをESCのASCIIコードで置換*/
+#define TAB 9                                        /*文字列TABをTABのASCIIコードで置換*/
+#define MAX_LINE 1025                                /*文字配列LINEの最大入力数の指定用*/
 
 /*構造体宣言*/
 struct date
@@ -32,50 +33,50 @@ void cmd_quit(char *param);
 void cmd_check(void);
 void cmd_print(char *param);
 void cmd_read(char *param);
-void cmd_write(char *param);
+void cmd_write(char *param, char sep);
 void cmd_find(char *param);
 void cmd_sort(char *param);
 void data_move(struct profile *sp1, struct profile *sp2);
 void new_profile(struct profile *profile_p, char *line);
 int int_value_check(char *str);
-int input_format_check(char *str);
+char input_format_check(char *str);
 
 /*グローバル変数宣言*/
-struct profile profile_data_store[10000];                    /*profile情報を格納*/
-int profile_data_nitems = 0;                                 /*profile情報の保存数を格納*/
+struct profile profile_data_store[10000];            /*profile情報を格納*/
+int profile_data_nitems = 0;                         /*profile情報の保存数を格納*/
 
 int subst(char *str, char c1, char c2)
 {
-  int i;                                                     /*forループ用*/
-  int c = 0;                                                 /*置き換えた文字数のカウント用*/
-  for(i = 0; *(str + i) != '\0'; i++)                        /*入力文字列の終端に辿り着くまでループ*/
+  int i;                                             /*forループ用*/
+  int c = 0;                                         /*置き換えた文字数のカウント用*/
+  for(i = 0; *(str + i) != '\0'; i++)                /*入力文字列の終端に辿り着くまでループ*/
     {
-      if(c1 == c2) break;                                    /*見た目上文字列に変化がないとき*/
-      if(*(str + i) == c1)                                   /*(str + i)の文字がc1の文字と同じとき*/
+      if(c1 == c2) break;                            /*見た目上文字列に変化がないとき*/
+      if(*(str + i) == c1)                           /*(str + i)の文字がc1の文字と同じとき*/
 	{
-	  *(str + i) = c2;                                   /*(str + i)の文字をc2の文字に置き換える*/
-	  c++;                                               /*置き換えた文字を数える*/
+	  *(str + i) = c2;                           /*(str + i)の文字をc2の文字に置き換える*/
+	  c++;                                       /*置き換えた文字を数える*/
 	}
     }
-  return c;                                                  /*置き換えた文字数を戻り値とする．*/
+  return c;                                          /*置き換えた文字数を戻り値とする．*/
 }
 
 int split(char *str, char *ret[], char sep, int max)
 {
-  int i;                                                     /*forループ用*/
-  int c = 0;                                                 /*ポインタの配列の指定用*/
+  int i;                                             /*forループ用*/
+  int c = 0;                                         /*ポインタの配列の指定用*/
 
-  ret[c++] = str;                                            /*ret[0]にstrの先頭アドレスを代入*/
+  ret[c++] = str;                                    /*ret[0]にstrの先頭アドレスを代入*/
 
-  for(i = 0; *(str + i) != '\0'&& c < max; i++)              /*cがmaxより小さいかつ入力文字列の終端に辿り着いていないときループ*/
+  for(i = 0; *(str + i) != '\0'&& c < max; i++)      /*cがmaxより小さいかつ入力文字列の終端に辿り着いていないときループ*/
     {
-      if(*(str + i) == sep)                                  /*(str + i)がsepのとき*/
+      if(*(str + i) == sep)                          /*(str + i)がsepのとき*/
 	{
-	  *(str + i) = '\0';                                 /*(str + i)にNULLを代入*/
-	  ret[c++] = str + (i + 1);                          /*ret[c]にNULL文字の"次の"アドレスを代入*/
+	  *(str + i) = '\0';                         /*(str + i)にNULLを代入*/
+	  ret[c++] = str + (i + 1);                  /*ret[c]にNULL文字の"次の"アドレスを代入*/
 	}
     }
-  return c;                                                  /*文字列をいくつに分割したかを戻り値とする*/
+  return c;                                          /*文字列をいくつに分割したかを戻り値とする*/
 }
 
 int get_line(FILE *F, char *line)
@@ -84,22 +85,22 @@ int get_line(FILE *F, char *line)
   if(fgets(line, MAX_LINE, F) == NULL) return 0;     /*入力文字列が空のとき，0を戻り値とする．入力文字列は1024文字*/
   if(*line == ESC) cmd_quit("r");
 
-  subst(line, '\n', '\0');                                   /*subst関数により，入力の改行文字を終端文字に置き換える*/
-  return 1;                                                  /*入力文字列が存在したとき，1を戻り値とする*/
+  subst(line, '\n', '\0');                           /*subst関数により，入力の改行文字を終端文字に置き換える*/
+  return 1;                                          /*入力文字列が存在したとき，1を戻り値とする*/
 }
 
 void parse_line(char *line)
 {
-  static int i = 1;                                          /*登録中止数カウント用*/
-  char *ret[2] = {NULL, NULL};                               /*コマンド文字列のポインタ，引数文字列のポインタ用*/
+  static int i = 1;                                  /*登録中止数カウント用*/
+  char *ret[2] = {NULL, NULL};                       /*コマンド文字列のポインタ，引数文字列のポインタ用*/
 
-  if(*line == '%')                                           /*入力文字列の1文字目が%のとき*/
+  if(*line == '%')                                   /*入力文字列の1文字目が%のとき*/
     {
       line++;
       split(line, ret, ' ', 2);
       exec_command(ret[0], ret[1]);
     }
-  else if(profile_data_nitems < 10000)                       /*入力がコマンドではなく，登録数が1万件以下のとき*/
+  else if(profile_data_nitems < 10000)               /*入力がコマンドではなく，登録数が1万件以下のとき*/
     {
       new_profile(&profile_data_store[profile_data_nitems++] ,line);
     }
@@ -117,11 +118,33 @@ void exec_command(char *cmd, char *param)
   switch (*cmd) {
   case 'Q': cmd_quit(param);   break;
   case 'C': cmd_check();  break;
-  case 'P': cmd_print(param);  break;
-  case 'R': cmd_read(param);   break;
-  case 'W': cmd_write(param);  break;
-  case 'F': cmd_find(param);   break;
-  case 'S': cmd_sort(param);   break;
+  case 'P':
+    if(strcmp(cmd, "P") == 0) cmd_print(param);
+    else fprintf(stderr, "コマンドの入力体裁が間違っています．処理を中止しました．\nもしかして：\"%%%c %s\"\n\n", *cmd, (cmd + 1));
+    break;
+
+  case 'R':
+    if(strcmp(cmd, "R") == 0) cmd_read(param);
+    else fprintf(stderr, "コマンドの入力体裁が間違っています．処理を中止しました．\nもしかして：\"%%%c %s\"\n\n", *cmd, (cmd + 1));
+    break;
+
+  case 'W':
+    if(strcmp(cmd, "W") == 0 ||strcmp(cmd, "WC") == 0) cmd_write(param, ',');
+    else if(strcmp(cmd, "WS") == 0) cmd_write(param, ';');
+    else if(strcmp(cmd, "WT") == 0) cmd_write(param, TAB);
+    else fprintf(stderr, "コマンドの入力体裁が間違っています．処理を中止しました．\nもしかして：\"%%%c %s\"または\"%%%c%c %s\"\n\n", *cmd, (cmd + 1), *cmd, *(cmd + 1), (cmd + 2));
+    break;
+
+  case 'F':
+    if(strcmp(cmd, "F") == 0) cmd_find(param);
+    else fprintf(stderr, "コマンドの入力体裁が間違っています．処理を中止しました．\nもしかして：\"%%%c %s\"\n\n", *cmd, (cmd + 1));
+    break;
+
+  case 'S':
+    if(strcmp(cmd, "S") == 0) cmd_sort(param);
+    else fprintf(stderr, "コマンドの入力体裁が間違っています．処理を中止しました．\nもしかして：\"%%%c %s\"\n\n", *cmd, (cmd + 1));
+    break;
+
   default: fprintf(stderr, "不明なコマンド\"%s\"です．処理を中止しました．\n\n", cmd); break;/*エラーメッセージを表示*/
   }
 }
@@ -131,7 +154,11 @@ void cmd_quit(char *param)
   char c = 65;
 
   if(param != NULL)
-    if(*param == 'r') exit(0);
+    if(*param == 'r')
+      {
+	printf("正常終了．\n\n");
+	exit(0);
+      }
  
   while(1)
     {
@@ -213,7 +240,7 @@ void cmd_read(char *param)
 
   if((fp = fopen(param, "r")) == NULL)                    /*指定されたファイル名が存在しない場合*/
     {
-      fprintf(stderr, "\"%s\"を読み込めません．カレントディレクトリにファイルが存在しないか，読み取り許可がない可能性があります．\n\n", param);
+      fprintf(stderr, "\"%s\"を読み込めません．カレントディレクトリにファイルが存在しないか，読み取り許可がない可能性があります．処理を中止しました．\n\n", param);
       return;
     }
 
@@ -225,7 +252,7 @@ void cmd_read(char *param)
   fclose(fp);
 }
 
-void cmd_write(char *param)
+void cmd_write(char *param, char sep)
 {
   int i;                                                  /*forループ用*/
   FILE *fp;
@@ -238,22 +265,23 @@ void cmd_write(char *param)
 
   if((fp = fopen(param, "w")) == NULL)                    /*指定されたファイル名が存在しない場合*/
     {
-      fprintf(stderr, "\"%s\"に書き込めません．書き込み許可がない可能性があります．\n\n", param);
+      fprintf(stderr, "\"%s\"に書き込めません．書き込み許可がない可能性があります．処理を中止しました．\n\n", param);
       return;
     }
 
-  /*CSV形式で出力*/
+  /*CSV,SCSV,TSV形式で出力*/
   for(i = 0; i < profile_data_nitems; i++)
     {
-      fprintf(fp, "%d,", profile_data_store[i].id);
-      fprintf(fp, "%s,", profile_data_store[i].name);
-      fprintf(fp, "%d-%d-%d,", profile_data_store[i].birthday.y, profile_data_store[i].birthday.m, profile_data_store[i].birthday.d);
-      fprintf(fp, "%s,",profile_data_store[i].address);
+      fprintf(fp, "%d%c", profile_data_store[i].id, sep);
+      fprintf(fp, "%s%c", profile_data_store[i].name, sep);
+      fprintf(fp, "%d-%d-%d%c", profile_data_store[i].birthday.y, profile_data_store[i].birthday.m, profile_data_store[i].birthday.d, sep);
+      fprintf(fp, "%s%c",profile_data_store[i].address, sep);
       fprintf(fp, "%s\n",profile_data_store[i].biko);
     }
 
   fclose(fp);
 }
+
 void cmd_find(char *param)
 {
   int i = 0;                                              /*forループ用*/
@@ -311,7 +339,7 @@ void cmd_sort(char *param)
     }
   if(int_value_check(param))
     {
-      fprintf(stderr, "引数は数値である必要があります．処理を中止しました．\n\n");
+      fprintf(stderr, "引数は整数値である必要があります．処理を中止しました．\n\n");
       return;
     }
   a_buff = atoi(param);
@@ -418,7 +446,8 @@ void new_profile(struct profile *profile_p, char *line)
   
   i++;
   sep = input_format_check(line);
-  if(sep == 0)
+
+  if(sep == 0)                                 /*カンマ，セミコロン，タブのいずれでも区切れない場合*/
     {
       fprintf(stderr, "情報はID，名前，誕生日，住所，備考の順で入力される必要があり，カンマ区切り，セミコロン区切り，タブ区切りのいずれかの体裁である必要があります．処理を中止しました(項目番号:%d)．\n\n", i);
       profile_data_nitems--;                   /*処理中止により，構造体に情報を書き込まないため*/
@@ -479,25 +508,25 @@ int int_value_check(char *str)
   return 0;  
 }
 
-int input_format_check(char *str)
+char input_format_check(char *str)
 {
-  int com_c = 0;                         /*コンマの使用回数のカウント*/
-  int semi_c = 0;                        /*セミコロンの使用回数のカウント*/
-  int tab_c = 0;                         /*タブの使用回数のカウント*/
+  int com_c = 0;                          /*コンマの使用回数のカウント*/
+  int semi_c = 0;                         /*セミコロンの使用回数のカウント*/
+  int tab_c = 0;                          /*タブの使用回数のカウント*/
 
-  while(*str)                            /*入力文字列の終端に辿り着くまでループ*/
+  while(*str)                             /*入力文字列の終端に辿り着くまでループ*/
     {
-      if(*str == ',')com_c++;            /*カンマ区切り*/
-      if(*str == ';')semi_c++;           /*セミコロン区切り*/
-      if(*str == 9)tab_c++;              /*タブ区切り*/
+      if(*str == ',') com_c++;            /*カンマ区切り*/
+      if(*str == ';') semi_c++;           /*セミコロン区切り*/
+      if(*str == TAB) tab_c++;              /*タブ区切り*/
       str++;
     }
     
-  if(com_c == 4)return 44;
-  if(semi_c == 4)return 59;
-  if(tab_c == 4)return 9;
+  if(com_c == 4) return 44;
+  if(semi_c == 4) return 59;
+  if(tab_c == 4) return 9;
 
-  return 0;                              /*例外*/
+  return 0;                               /*例外*/
 }
 
 int main(void)

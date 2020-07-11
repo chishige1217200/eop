@@ -3,6 +3,8 @@
 *.log
 *.dvi
 *.csv
+*.scsv
+*.tsv
 *.sh
 *db-sample
 *.*~
