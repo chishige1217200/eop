@@ -38,6 +38,7 @@ void cmd_sort(char *param);
 void data_move(struct profile *sp1, struct profile *sp2);
 void new_profile(struct profile *profile_p, char *line);
 int int_value_check(char *str);
+int input_format_check(char *str);
 
 /*グローバル変数宣言*/
 struct profile profile_data_store[10000];                    /*profile情報を格納*/
@@ -81,7 +82,7 @@ int get_line(FILE *F, char *line)
 {
 
   if(fgets(line, MAX_LINE, F) == NULL) return 0;     /*入力文字列が空のとき，0を戻り値とする．入力文字列は1024文字*/
-  if(*line == ESC) cmd_quit();
+  if(*line == ESC) return 0;
 
   subst(line, '\n', '\0');                                   /*subst関数により，入力の改行文字を終端文字に置き換える*/
   return 1;                                                  /*入力文字列が存在したとき，1を戻り値とする*/
@@ -95,7 +96,7 @@ void parse_line(char *line)
   if(*line == '%')                                           /*入力文字列の1文字目が%のとき*/
     {
       line++;
-      split(line, ret, 32, 2);
+      split(line, ret, ' ', 2);
       exec_command(ret[0], ret[1]);
     }
   else if(profile_data_nitems < 10000)                       /*入力がコマンドではなく，登録数が1万件以下のとき*/
@@ -127,13 +128,13 @@ void exec_command(char *cmd, char *param)
 
 void cmd_quit(void)
 {
-  char c;
+  char c = 65;
   
   while(1)
     {
       printf("終了しますか?(y/n)\n");                      /*確認メッセージ*/
-      c = getchar();
-      getchar();                                         /*getcharでの入力時に改行文字が残ってしまうため*/
+      scanf("%c", &c);
+      if(c != '\n')getchar(); /*getcharでの入力時に改行文字が残ってしまうため*/
       if(c == 'y')
   	{
   	  printf("正常終了．\n\n");
@@ -201,6 +202,12 @@ void cmd_read(char *param)
   char LINE[MAX_LINE] = {0};
   FILE *fp;
 
+  if(param == NULL)
+    {
+      fprintf(stderr, "実行には引数が必要です．処理を中止しました．\n\n");
+      return;
+    }
+
   if((fp = fopen(param, "r")) == NULL)                    /*指定されたファイル名が存在しない場合*/
     {
       fprintf(stderr, "\"%s\"を読み込めません．カレントディレクトリにファイルが存在しないか，読み取り許可がない可能性があります．\n\n", param);
@@ -219,6 +226,12 @@ void cmd_write(char *param)
 {
   int i;                                                  /*forループ用*/
   FILE *fp;
+
+  if(param == NULL)
+    {
+      fprintf(stderr, "実行には引数が必要です．処理を中止しました．\n\n");
+      return;
+    }
 
   if((fp = fopen(param, "w")) == NULL)                    /*指定されたファイル名が存在しない場合*/
     {
@@ -391,30 +404,24 @@ void data_move(struct profile *sp1, struct profile *sp2)
 void new_profile(struct profile *profile_p, char *line)
 {
   char *ret[10];
-  char *ret2[4];                                           /*誕生日の情報を分割し，その先頭アドレスを保存*/
-  char sep = ',';                                          /*csvファイルからの入力を想定しているため，カンマ*/
-  char sep2 = '-';                                         /*誕生日の入力文字列にあるハイフンで区切るため，ハイフン*/
-  int max = 10;
+  char *ret2[4];                               /*誕生日の情報を分割し，その先頭アドレスを保存*/
+  char sep;                                    /*入力文字列の要素を区切るのに使用*/
+  char sep2 = '-';                             /*誕生日の入力文字列にあるハイフンで区切るため，ハイフン*/
+  int max = 5;
   int max2 = 4;
-  int c, birth_c;
-  int MAX_BIKO = 0;                                        /*備考の文字数カウント用*/
-  static int i = 0;                                        /*入力項目の行番号監視*/
+  int birth_c = 0;
+  int MAX_BIKO = 0;                            /*備考の文字数カウント用*/
+  static int i = 0;                            /*入力項目の行番号監視*/
   
   i++;
-  c = split(line, ret, sep, max);                          /*ID，名前などの情報を分割する*/
-  if(c != 5)                                               /*入力形式が合わない場合*/
+  sep = input_format_check(line);
+  if(sep == 0)
     {
-      fprintf(stderr, "情報はID，名前，誕生日，住所，備考の順で入力される必要があります．処理を中止しました(項目番号:%d)．\n\n", i);
-      profile_data_nitems--;                               /*処理中止により，構造体に情報を書き込まないため*/
+      fprintf(stderr, "情報はID，名前，誕生日，住所，備考の順で入力される必要があり，カンマ区切り，セミコロン区切り，タブ区切りのいずれかの体裁である必要があります．処理を中止しました(項目番号:%d)．\n\n", i);
+      profile_data_nitems--;                   /*処理中止により，構造体に情報を書き込まないため*/
       return;
     }
-  birth_c = split(ret[2], ret2, sep2, max2);               /*誕生日の年，月，日を分割する*/
-  if(birth_c != 3)                                         /*誕生日の年，月，日を正常に分割できない場合*/
-    {
-      fprintf(stderr, "誕生日は\"年-月-日\"の形で入力される必要があります．処理を中止しました(項目番号:%d)．\n\n", i); /*年，月，日に分割できない場合，処理を停止*/
-      profile_data_nitems--;                               /*処理中止により，構造体に情報を書き込まないため*/
-      return;
-    }
+  split(line, ret, sep, max);                  /*ID，名前などの情報を分割する*/
 
   /*atoi関数で正常に文字列をint値に変換できるかの確認を実施*/
   if(int_value_check(ret[0]))
@@ -423,6 +430,16 @@ void new_profile(struct profile *profile_p, char *line)
       profile_data_nitems--;
       return;
     }
+
+  birth_c = split(ret[2], ret2, sep2, max2);   /*誕生日の年，月，日を分割する*/
+  if(birth_c != 3)                             /*誕生日の年，月，日を正常に分割できない場合*/
+    {
+      fprintf(stderr, "誕生日は\"年-月-日\"の形で入力される必要があります．処理を中止しました(項目番号:%d)．\n\n", i); /*年，月，日に分割できない場合，処理を停止*/
+      profile_data_nitems--;                   /*処理中止により，構造体に情報を書き込まないため*/
+      return;
+    }
+
+  /*atoi関数で正常に文字列をint値に変換できるかの確認を実施*/
   if(int_value_check(ret2[0]) ||
      int_value_check(ret2[1]) ||
      int_value_check(ret2[2]) )
@@ -433,36 +450,60 @@ void new_profile(struct profile *profile_p, char *line)
     }
 
   /*構造体への情報の書き込み処理*/
-  profile_p->id = atoi(ret[0]);                            /*IDの書き込み*/
-  strncpy(profile_p->name, ret[1], 69);                    /*名前の書き込み*/
-  (profile_p->birthday).y = atoi(ret2[0]);                 /*誕生年の書き込み*/
-  (profile_p->birthday).m = atoi(ret2[1]);                 /*誕生月の書き込み*/
-  (profile_p->birthday).d = atoi(ret2[2]);                 /*誕生日の書き込み*/
-  strncpy(profile_p->address, ret[3], 69);                 /*住所の書き込み*/
+  profile_p->id = atoi(ret[0]);                /*IDの書き込み*/
+  strncpy(profile_p->name, ret[1], 69);        /*名前の書き込み*/
+  (profile_p->birthday).y = atoi(ret2[0]);     /*誕生年の書き込み*/
+  (profile_p->birthday).m = atoi(ret2[1]);     /*誕生月の書き込み*/
+  (profile_p->birthday).d = atoi(ret2[2]);     /*誕生日の書き込み*/
+  strncpy(profile_p->address, ret[3], 69);     /*住所の書き込み*/
 
-  MAX_BIKO = strlen(ret[4]) + 1;                           /*備考情報の文字数のカウント*/
+  MAX_BIKO = strlen(ret[4]) + 1;               /*備考情報の文字数のカウント*/
 
-  profile_p->biko = (char *)malloc(sizeof(char) * MAX_BIKO); /*文字数分だけメモリ確保*/
-  strncpy(profile_p->biko, ret[4], MAX_BIKO);              /*備考の書き込み*/
+  profile_p->biko = (char *)malloc(sizeof(char)* MAX_BIKO); /*文字数分だけメモリ確保*/
+  strncpy(profile_p->biko, ret[4], MAX_BIKO);  /*備考の書き込み*/
 }
 
 int int_value_check(char *str)
 {
-  do                                       /*入力文字列の終端に辿り着くまでループ*/
+  if((*str >= 48 && *str <= 57) || *str == 43 || *str == 45) str++;
+  else return 1;
+
+  while(*str)                             /*入力文字列の終端に辿り着くまでループ*/
     {
-      if(*str >= 48 && *str <= 57 ) str++; /*確認する文字が0~9の場合，次の文字を確認*/
-      else return 1;                       /*確認する文字が0~9で無い場合，戻り値1*/
-    }while(*str);
+      if(*str >= 48 && *str <= 57) str++; /*確認する文字が0~9の場合，次の文字を確認*/
+      else return 1;                      /*確認する文字が0~9で無い場合，戻り値1*/
+    }
   return 0;  
+}
+
+int input_format_check(char *str)
+{
+  int com_c = 0;                         /*コンマの使用回数のカウント*/
+  int semi_c = 0;                        /*セミコロンの使用回数のカウント*/
+  int tab_c = 0;                         /*タブの使用回数のカウント*/
+
+  while(*str)                            /*入力文字列の終端に辿り着くまでループ*/
+    {
+      if(*str == ',')com_c++;            /*カンマ区切り*/
+      if(*str == ';')semi_c++;           /*セミコロン区切り*/
+      if(*str == 9)tab_c++;              /*タブ区切り*/
+      str++;
+    }
+    
+  if(com_c == 4)return 44;
+  if(semi_c == 4)return 59;
+  if(tab_c == 4)return 9;
+
+  return 0;                              /*例外*/
 }
 
 int main(void)
 {
-  char LINE[MAX_LINE] = {0};                               /*標準入力文字列(1行分)はmain関数で管理*/
+  char LINE[MAX_LINE] = {0};              /*標準入力文字列(1行分)はmain関数で管理*/
 
-  while(get_line(stdin, LINE))                             /*文字配列LINEに文字列を入力する*/
+  while(get_line(stdin, LINE))            /*文字配列LINEに文字列を入力する*/
     {
-      parse_line(LINE);                                    /*入力文字列がある場合，構文解析を行う*/
+      parse_line(LINE);                   /*入力文字列がある場合，構文解析を行う*/
     }
   return 0;
 }
