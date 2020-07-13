@@ -132,7 +132,7 @@ void exec_command(char *cmd, char *param)
     if(strcmp(cmd, "W") == 0 ||strcmp(cmd, "WC") == 0) cmd_write(param, ',');
     else if(strcmp(cmd, "WS") == 0) cmd_write(param, ';');
     else if(strcmp(cmd, "WT") == 0) cmd_write(param, TAB);
-    else fprintf(stderr, "コマンドの入力体裁が間違っています．処理を中止しました．\nもしかして：\"%%%c %s\"または\"%%%c%c %s\"\n\n", *cmd, (cmd + 1), *cmd, *(cmd + 1), (cmd + 2));
+    else fprintf(stderr, "コマンドの入力体裁が間違っています．処理を中止しました．\nもしかして：\"%%%c %c%c%s\"または\"%%%c%c %c%s\"\n\n", *cmd, *(cmd + 1), *(cmd + 2), (cmd + 3), *cmd, *(cmd + 1), *(cmd + 2), (cmd + 3));
     break;
 
   case 'F':
@@ -287,6 +287,7 @@ void cmd_find(char *param)
   int i = 0;                                              /*forループ用*/
   char num1[12];                                          /*int値を文字列に変換する際に使用*/
   char num2[36];                                          /*int値を文字列に変換する際に使用*/
+  char num3[36];                                          /*誕生日の0埋めなし用*/
   struct profile *p;
 
   if(param == NULL)
@@ -302,10 +303,12 @@ void cmd_find(char *param)
       /*int値を文字列に変換して代入*/
       sprintf(num1,"%d", p->id);
       sprintf(num2,"%04d-%02d-%02d",(p->birthday).y, (p->birthday).m, (p->birthday).d);
+      sprintf(num3,"%d-%d-%d",(p->birthday).y, (p->birthday).m, (p->birthday).d);
 
       if(strcmp(param, num1) == 0 ||                      /*ID比較*/
 	 strcmp(param, p->name) == 0 ||                   /*name比較*/
-	 strcmp(param, num2) == 0 ||                      /*birthday比較*/
+	 strcmp(param, num2) == 0 ||                      /*birthday比較(0埋め)*/
+	 strcmp(param, num3) == 0 ||                      /*birthday比較（0無視）*/
 	 strcmp(param, p->address) == 0 ||                /*address比較*/
 	 strcmp(param, p->biko) == 0)                     /*biko比較*/
 	{                                                 /*該当名簿情報表示*/
