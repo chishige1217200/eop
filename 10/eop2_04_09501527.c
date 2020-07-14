@@ -116,7 +116,23 @@ void exec_command(char *cmd, char *param)
   /*strcmpの導入*/
 
   switch (*cmd) {
-  case 'Q': cmd_quit(param);   break;
+  case 'Q': 
+    if(param == NULL)
+      {
+	if(strcmp(cmd, "Q") == 0) cmd_quit("A");
+	fprintf(stderr, "%%Q rと入力することで，確認メッセージなしで終了できます．\n\n");
+	cmd_quit(0);
+      }
+    else
+      {
+	if(strcmp(param, "r") == 0) cmd_quit(param);
+	else {
+	  fprintf(stderr, "%%Q rと入力することで，確認メッセージなしで終了できます．\n\n");
+	  cmd_quit(0);
+	}
+      }
+    break;
+
   case 'C': cmd_check();  break;
   case 'P':
     if(strcmp(cmd, "P") == 0) cmd_print(param);
@@ -145,7 +161,7 @@ void exec_command(char *cmd, char *param)
     else fprintf(stderr, "コマンドの入力体裁が間違っています．処理を中止しました．\nもしかして：\"%%%c %s\"\n\n", *cmd, (cmd + 1));
     break;
 
-  default: fprintf(stderr, "不明なコマンド\"%s\"です．処理を中止しました．\n\n", cmd); break;/*エラーメッセージを表示*/
+  default: fprintf(stderr, "不明なコマンド\"%%%s\"です．処理を中止しました．\n\n", cmd); break;/*エラーメッセージを表示*/
   }
 }
 
