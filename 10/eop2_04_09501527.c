@@ -1,10 +1,10 @@
 #include <stdio.h>
-#include <string.h>                                  /*strncpy関数等用*/
-#include <stdlib.h>                                  /*exit関数用*/
+#include <string.h>                            /*strncpy関数等用*/
+#include <stdlib.h>                            /*exit関数用*/
 
-#define ESC 27                                       /*文字列ESCをESCのASCIIコードで置換*/
-#define TAB 9                                        /*文字列TABをTABのASCIIコードで置換*/
-#define MAX_LINE 1025                                /*文字配列LINEの最大入力数の指定用*/
+#define ESC 27                                 /*文字列ESCをESCのASCIIコードで置換*/
+#define TAB 9                                  /*文字列TABをTABのASCIIコードで置換*/
+#define MAX_LINE 1025                          /*文字配列LINEの最大入力数の指定用*/
 
 /*構造体宣言*/
 struct date
@@ -40,67 +40,68 @@ void data_move(struct profile *sp1, struct profile *sp2);
 void new_profile(struct profile *profile_p, char *line);
 int int_value_check(char *str);
 char input_format_check(char *str);
+int day_format_check(int y, int m, int d);
 
 /*グローバル変数宣言*/
-struct profile profile_data_store[10000];            /*profile情報を格納*/
-int profile_data_nitems = 0;                         /*profile情報の保存数を格納*/
+struct profile profile_data_store[10000];      /*profile情報を格納*/
+int profile_data_nitems = 0;                   /*profile情報の保存数を格納*/
 
 int subst(char *str, char c1, char c2)
 {
-  int i;                                             /*forループ用*/
-  int c = 0;                                         /*置き換えた文字数のカウント用*/
-  for(i = 0; *(str + i) != '\0'; i++)                /*入力文字列の終端に辿り着くまでループ*/
+  int i;                                       /*forループ用*/
+  int c = 0;                                   /*置き換えた文字数のカウント用*/
+  for(i = 0; *(str + i) != '\0'; i++)          /*入力文字列の終端に辿り着くまでループ*/
     {
-      if(c1 == c2) break;                            /*見た目上文字列に変化がないとき*/
-      if(*(str + i) == c1)                           /*(str + i)の文字がc1の文字と同じとき*/
+      if(c1 == c2) break;                      /*見た目上文字列に変化がないとき*/
+      if(*(str + i) == c1)                     /*(str + i)の文字がc1の文字と同じとき*/
 	{
-	  *(str + i) = c2;                           /*(str + i)の文字をc2の文字に置き換える*/
-	  c++;                                       /*置き換えた文字を数える*/
+	  *(str + i) = c2;                     /*(str + i)の文字をc2の文字に置き換える*/
+	  c++;                                 /*置き換えた文字を数える*/
 	}
     }
-  return c;                                          /*置き換えた文字数を戻り値とする．*/
+  return c;                                    /*置き換えた文字数を戻り値とする．*/
 }
 
 int split(char *str, char *ret[], char sep, int max)
 {
-  int i;                                             /*forループ用*/
-  int c = 0;                                         /*ポインタの配列の指定用*/
+  int i;                                       /*forループ用*/
+  int c = 0;                                   /*ポインタの配列の指定用*/
 
-  ret[c++] = str;                                    /*ret[0]にstrの先頭アドレスを代入*/
+  ret[c++] = str;                              /*ret[0]にstrの先頭アドレスを代入*/
 
-  for(i = 0; *(str + i) != '\0'&& c < max; i++)      /*cがmaxより小さいかつ入力文字列の終端に辿り着いていないときループ*/
+  for(i = 0; *(str + i) != '\0'&& c < max; i++)/*cがmaxより小さいかつ入力文字列の終端に辿り着いていないときループ*/
     {
-      if(*(str + i) == sep)                          /*(str + i)がsepのとき*/
+      if(*(str + i) == sep)                    /*(str + i)がsepのとき*/
 	{
-	  *(str + i) = '\0';                         /*(str + i)にNULLを代入*/
-	  ret[c++] = str + (i + 1);                  /*ret[c]にNULL文字の"次の"アドレスを代入*/
+	  *(str + i) = '\0';                   /*(str + i)にNULLを代入*/
+	  ret[c++] = str + (i + 1);            /*ret[c]にNULL文字の"次の"アドレスを代入*/
 	}
     }
-  return c;                                          /*文字列をいくつに分割したかを戻り値とする*/
+  return c;                                    /*文字列をいくつに分割したかを戻り値とする*/
 }
 
 int get_line(FILE *F, char *line)
 {
 
-  if(fgets(line, MAX_LINE, F) == NULL) return 0;     /*入力文字列が空のとき，0を戻り値とする．入力文字列は1024文字*/
+  if(fgets(line, MAX_LINE, F) == NULL) return 0;/*入力文字列が空のとき，0を戻り値とする．入力文字列は1024文字*/
   if(*line == ESC) cmd_quit("r");
 
-  subst(line, '\n', '\0');                           /*subst関数により，入力の改行文字を終端文字に置き換える*/
-  return 1;                                          /*入力文字列が存在したとき，1を戻り値とする*/
+  subst(line, '\n', '\0');                     /*subst関数により，入力の改行文字を終端文字に置き換える*/
+  return 1;                                    /*入力文字列が存在したとき，1を戻り値とする*/
 }
 
 void parse_line(char *line)
 {
-  static int i = 1;                                  /*登録中止数カウント用*/
-  char *ret[2] = {NULL, NULL};                       /*コマンド文字列のポインタ，引数文字列のポインタ用*/
+  static int i = 1;                            /*登録中止数カウント用*/
+  char *ret[2] = {NULL, NULL};                 /*コマンド文字列のポインタ，引数文字列のポインタ用*/
 
-  if(*line == '%')                                   /*入力文字列の1文字目が%のとき*/
+  if(*line == '%')                             /*入力文字列の1文字目が%のとき*/
     {
       line++;
       split(line, ret, ' ', 2);
       exec_command(ret[0], ret[1]);
     }
-  else if(profile_data_nitems < 10000)               /*入力がコマンドではなく，登録数が1万件以下のとき*/
+  else if(profile_data_nitems < 10000)         /*入力がコマンドではなく，登録数が1万件以下のとき*/
     {
       new_profile(&profile_data_store[profile_data_nitems++] ,line);
     }
@@ -113,7 +114,6 @@ void parse_line(char *line)
 
 void exec_command(char *cmd, char *param)
 {
-  /*strcmpの導入*/
 
   switch (*cmd) {
   case 'Q': 
@@ -169,8 +169,8 @@ void cmd_quit(char *param)
 {
   char c = 65;
 
-  if(param != NULL)
-    if(*param == 'r')
+  if(param != NULL)                            /*param部が存在している場合*/
+    if(*param == 'r')                          /*rオプションで確認メッセージなしで終了*/
       {
 	printf("正常終了．\n\n");
 	exit(0);
@@ -178,9 +178,9 @@ void cmd_quit(char *param)
  
   while(1)
     {
-      printf("終了しますか?(y/n)\n");                      /*確認メッセージ*/
-      scanf("%c", &c);
-      if(c != '\n')getchar(); /*getcharでの入力時に改行文字が残ってしまうため*/
+      printf("終了しますか?(y/n)\n");            /*確認メッセージ*/
+      scanf("%c", &c);        /*いきなり改行文字を入力した場合，この下の処理は実行しない*/
+      if(c != '\n')getchar(); /*scanfでの入力時に改行文字が残ってしまうため*/
       if(c == 'y')
   	{
   	  printf("正常終了．\n\n");
@@ -194,7 +194,7 @@ void cmd_quit(char *param)
     }
 }
 
-void cmd_check(void)
+void cmd_check(void)                           /*名簿件数表示*/
 {
   printf("%d profile(s)\n", profile_data_nitems);
 }
@@ -202,7 +202,7 @@ void cmd_check(void)
 void cmd_print(char *param)
 {
   int a = 0;
-  int i = 0;                                             /*forループ用*/
+  int i = 0;                                   /*forループ用*/
 
   /*atoi関数で正常に文字列をint値に変換できるかの確認を実施*/
   if(param == NULL) a = 0;
@@ -213,13 +213,13 @@ void cmd_print(char *param)
 	  fprintf(stderr,"引数は数値である必要があります．処理を中止しました．\n\n");
 	  return;
 	}
-      a = atoi(param);                                   /*文字列をint型の値に変換*/
+      a = atoi(param);                         /*文字列をint型の値に変換*/
     }
 
   /*aの絶対値がprofile_data_nitemsより大きいときかa=0のとき*/
   if(abs(a) >= profile_data_nitems|| a == 0) a = profile_data_nitems;
 
-  if(a > 0)                                              /*引数が正の整数のとき及び例外*/
+  if(a > 0)                                    /*引数が正の整数のとき及び例外*/
     {
       for(i = 0; i < a; i++)
         {
@@ -230,7 +230,7 @@ void cmd_print(char *param)
 	  printf("Comm. : %s\n\n",profile_data_store[i].biko);
 	}
     }
-  else if(a < 0)                                         /*引数が負の整数のとき*/
+  else if(a < 0)                               /*引数が負の整数のとき*/
     {
       for(i = profile_data_nitems + a; i < profile_data_nitems; i++)
 	{
@@ -254,15 +254,15 @@ void cmd_read(char *param)
       return;
     }
 
-  if((fp = fopen(param, "r")) == NULL)                    /*指定されたファイル名が存在しない場合*/
+  if((fp = fopen(param, "r")) == NULL)         /*指定されたファイル名が存在しない場合*/
     {
       fprintf(stderr, "\"%s\"を読み込めません．カレントディレクトリにファイルが存在しないか，読み取り許可がない可能性があります．処理を中止しました．\n\n", param);
       return;
     }
 
-  while(get_line(fp, LINE))                               /*文字配列LINEに文字列を入力する*/
+  while(get_line(fp, LINE))                    /*文字配列LINEに文字列を入力する*/
     {
-      parse_line(LINE);                                   /*入力文字列がある場合，構文解析を行う*/
+      parse_line(LINE);                        /*入力文字列がある場合，構文解析を行う*/
     }
 
   fclose(fp);
@@ -270,7 +270,7 @@ void cmd_read(char *param)
 
 void cmd_write(char *param, char sep)
 {
-  int i;                                                  /*forループ用*/
+  int i;                                       /*forループ用*/
   FILE *fp;
 
   if(param == NULL)
@@ -279,7 +279,7 @@ void cmd_write(char *param, char sep)
       return;
     }
 
-  if((fp = fopen(param, "w")) == NULL)                    /*指定されたファイル名が存在しない場合*/
+  if((fp = fopen(param, "w")) == NULL)         /*指定されたファイル名が存在しない場合*/
     {
       fprintf(stderr, "\"%s\"に書き込めません．書き込み許可がない可能性があります．処理を中止しました．\n\n", param);
       return;
@@ -300,10 +300,10 @@ void cmd_write(char *param, char sep)
 
 void cmd_find(char *param)
 {
-  int i = 0;                                              /*forループ用*/
-  char num1[12];                                          /*int値を文字列に変換する際に使用*/
-  char num2[36];                                          /*int値を文字列に変換する際に使用*/
-  char num3[36];                                          /*誕生日の0埋めなし用*/
+  int i = 0;                                   /*forループ用*/
+  char num1[12];                               /*int値を文字列に変換する際に使用*/
+  char num2[36];                               /*int値を文字列に変換する際に使用*/
+  char num3[36];                               /*誕生日の0埋めなし用*/
   struct profile *p;
 
   if(param == NULL)
@@ -321,13 +321,13 @@ void cmd_find(char *param)
       sprintf(num2,"%04d-%02d-%02d",(p->birthday).y, (p->birthday).m, (p->birthday).d);
       sprintf(num3,"%d-%d-%d",(p->birthday).y, (p->birthday).m, (p->birthday).d);
 
-      if(strcmp(param, num1) == 0 ||                      /*ID比較*/
-	 strcmp(param, p->name) == 0 ||                   /*name比較*/
-	 strcmp(param, num2) == 0 ||                      /*birthday比較(0埋め)*/
-	 strcmp(param, num3) == 0 ||                      /*birthday比較（0無視）*/
-	 strcmp(param, p->address) == 0 ||                /*address比較*/
-	 strcmp(param, p->biko) == 0)                     /*biko比較*/
-	{                                                 /*該当名簿情報表示*/
+      if(strcmp(param, num1) == 0 ||           /*ID比較*/
+	 strcmp(param, p->name) == 0 ||        /*name比較*/
+	 strcmp(param, num2) == 0 ||           /*birthday比較(0埋め)*/
+	 strcmp(param, num3) == 0 ||           /*birthday比較（0無視）*/
+	 strcmp(param, p->address) == 0 ||     /*address比較*/
+	 strcmp(param, p->biko) == 0)          /*biko比較*/
+	{                                      /*該当名簿情報表示*/
 	  printf("Id    : %d\n", p->id);
 	  printf("Name  : %s\n", p->name);
 	  printf("Birth : %04d-%02d-%02d\n", (p->birthday).y, (p->birthday).m, (p->birthday).d);
@@ -340,15 +340,15 @@ void cmd_find(char *param)
 void cmd_sort(char *param)
 {
   int a = 0;
-  int a_buff = 0;                                          /*param変換後の値保持用*/  
-  int i1 = 0;                                              /*バブルソート用の右端を決める*/
-  int i2 = 0;                                              /*バブルソートの探索用*/
-  char num1[36];                                           /*int値を文字列に変換する際に使用*/
-  char num2[36];                                           /*int値を文字列に変換する際に使用*/
+  int a_buff = 0;                              /*param変換後の値保持用*/  
+  int i1 = 0;                                  /*バブルソート用の右端を決める*/
+  int i2 = 0;                                  /*バブルソートの探索用*/
+  char num1[36];                               /*int値を文字列に変換する際に使用*/
+  char num2[36];                               /*int値を文字列に変換する際に使用*/
   struct profile *sp1;
   struct profile *sp2;
-  char *cp1;                                               /*任意文字列の先頭アドレスを保持*/
-  char *cp2;                                               /*任意文字列の先頭アドレスを保持*/
+  char *cp1;                                   /*任意文字列の先頭アドレスを保持*/
+  char *cp2;                                   /*任意文字列の先頭アドレスを保持*/
 
   /*atoi関数で正常に文字列をint値に変換できるかの確認を実施*/
   if(param == NULL)
@@ -363,7 +363,7 @@ void cmd_sort(char *param)
     }
   a_buff = atoi(param);
 
-  if(a_buff < 1 || a_buff > 5)
+  if(a_buff < 1 || a_buff > 5) /*引数のチェック*/
     {
       fprintf(stderr, "引数は1から5のいずれかの数値である必要があります．処理を中止しました．\n\n");
       return;
@@ -373,40 +373,40 @@ void cmd_sort(char *param)
     {
       for(i2 = 0; i2 < profile_data_nitems - i1 - 1; i2++)
 	{
-	  a = a_buff;                                      /*例外対策処理用で毎度aを初期化*/
-	  sp1 = &profile_data_store[i2];                   /*名簿データの先頭アドレスを登録*/
-	  sp2 = &profile_data_store[i2 + 1];               /*1つ後ろの名簿データの先頭アドレスを登録*/
+	  a = a_buff;                          /*例外対策処理用で毎度aを初期化*/
+	  sp1 = &profile_data_store[i2];       /*名簿データの先頭アドレスを登録*/
+	  sp2 = &profile_data_store[i2 + 1];   /*1つ後ろの名簿データの先頭アドレスを登録*/
 
-	  if(a == 2)
+	  if(a == 2) /*氏名で並び換え*/
 	    {
 	      cp1 = sp1->name;
 	      cp2 = sp2->name;
-	      if(strcmp(cp1, cp2) == 0) a = 1;             /*項目が一致していた場合は，IDの昇順になるように並び変える*/
+	      if(strcmp(cp1, cp2) == 0) a = 1; /*項目が一致していた場合は，IDの昇順になるように並び変える*/
 	    }
 	  
-	  if(a == 3)
+	  if(a == 3) /*誕生日で並び換え*/
 	    {
 	      sprintf(num1, "%010d%010d%010d", (sp1->birthday).y, (sp1->birthday).m, (sp1->birthday).d);
 	      sprintf(num2, "%010d%010d%010d", (sp2->birthday).y, (sp2->birthday).m, (sp2->birthday).d);
 	      cp1 = num1;
 	      cp2 = num2;
-	      if(strcmp(cp1, cp2) == 0) a = 1;             /*項目が一致していた場合は，IDの昇順になるように並び変える*/
+	      if(strcmp(cp1, cp2) == 0) a = 1; /*項目が一致していた場合は，IDの昇順になるように並び変える*/
 	    }
 	  
-	  if(a == 4)
+	  if(a == 4) /*住所で並び換え*/
 	    {
 	      cp1 = sp1->address;
 	      cp2 = sp2->address;
-	      if(strcmp(cp1, cp2) == 0) a = 1;             /*項目が一致していた場合は，IDの昇順になるように並び変える*/
+	      if(strcmp(cp1, cp2) == 0) a = 1; /*項目が一致していた場合は，IDの昇順になるように並び変える*/
 	    }
-	  if(a == 5)
+	  if(a == 5) /*備考で並び換え*/
 	    {
 	      cp1 = sp1->biko;
 	      cp2 = sp2->biko;
-	      if(strcmp(cp1, cp2) == 0) a = 1;             /*項目が一致していた場合は，IDの昇順になるように並び変える*/
+	      if(strcmp(cp1, cp2) == 0) a = 1; /*項目が一致していた場合は，IDの昇順になるように並び変える*/
 	    }
  	  
-	  if(a == 1)
+	  if(a == 1) /*IDで並び換え*/
 	    {
 	      sprintf(num1, "%010d", sp1->id);
 	      sprintf(num2, "%010d", sp2->id);
@@ -414,7 +414,7 @@ void cmd_sort(char *param)
 	      cp2 = num2;
 	    }
 
-	  if(strcmp(cp1, cp2) > 0) data_move(sp1, sp2);
+	  if(strcmp(cp1, cp2) > 0) data_move(sp1, sp2); /*文字列比較*/
 	}
     }
 }
@@ -482,6 +482,14 @@ void new_profile(struct profile *profile_p, char *line)
       return;
     }
 
+  /*IDが負になる場合は，処理を中断する*/
+  if(atoi(ret[0]) < 0)
+    {
+      fprintf(stderr,"IDの項目は正の数値である必要があります．処理を中止しました(項目番号:%d)．\n\n", i);
+      profile_data_nitems--;
+      return;
+    }
+
   birth_c = split(ret[2], ret2, sep2, max2);   /*誕生日の年，月，日を分割する*/
   if(birth_c != 3)                             /*誕生日の年，月，日を正常に分割できない場合*/
     {
@@ -496,6 +504,14 @@ void new_profile(struct profile *profile_p, char *line)
      int_value_check(ret2[2]) )
     {
       fprintf(stderr,"誕生年，月，日の項目は数値である必要があります．処理を中止しました(項目番号:%d)．\n\n", i);
+      profile_data_nitems--;
+      return;
+    }
+
+  /*年月日の体裁チェック*/
+  if(day_format_check(atoi(ret2[0]), atoi(ret2[1]), atoi(ret2[2])))
+    {
+      fprintf(stderr,"その年月日は存在しません．処理を中止しました(項目番号:%d)．\n\n", i);
       profile_data_nitems--;
       return;
     }
@@ -516,7 +532,7 @@ void new_profile(struct profile *profile_p, char *line)
 
 int int_value_check(char *str)
 {
-  if((*str >= 48 && *str <= 57) || *str == 43 || *str == 45) str++;
+  if((*str >= 48 && *str <= 57) || *str == 43 || *str == 45) str++;/*1文字目は'-'と'+'を許容*/
   else return 1;
 
   while(*str)                             /*入力文字列の終端に辿り着くまでループ*/
@@ -524,7 +540,7 @@ int int_value_check(char *str)
       if(*str >= 48 && *str <= 57) str++; /*確認する文字が0~9の場合，次の文字を確認*/
       else return 1;                      /*確認する文字が0~9で無い場合，戻り値1*/
     }
-  return 0;  
+  return 0;                               /*変換不可能文字列と判定した場合*/
 }
 
 char input_format_check(char *str)
@@ -537,15 +553,66 @@ char input_format_check(char *str)
     {
       if(*str == ',') com_c++;            /*カンマ区切り*/
       if(*str == ';') semi_c++;           /*セミコロン区切り*/
-      if(*str == TAB) tab_c++;              /*タブ区切り*/
+      if(*str == TAB) tab_c++;            /*タブ区切り*/
       str++;
     }
     
+  /*正しく区切れると見込まれる文字の文字コードを返す*/
   if(com_c == 4) return 44;
   if(semi_c == 4) return 59;
   if(tab_c == 4) return 9;
 
-  return 0;                               /*例外*/
+  return 0;                               /*どの文字でも区切ることができない場合(例外)*/
+}
+
+int day_format_check(int y, int m, int d) /*存在する年月日の場合，戻り値0，それ以外は戻り値1*/
+{  
+  switch(m){
+  case 1:
+    if(d >= 1 && d <= 31) return 0;
+    break;
+  case 2:
+    if((y % 4 == 0 && y % 100 != 0) || y % 400 == 0)/*閏年の場合，dを29日まで許可*/
+      {
+	if(d >= 1 && d <= 29) return 0;
+      }
+    else                                  /*そうでない場合は，dは28日まで*/
+      {
+	if(d >= 1 && d <= 28) return 0;
+      }
+    break;
+  case 3:
+    if(d >= 1 && d <= 31) return 0;
+    break;
+  case 4:
+    if(d >= 1 && d <= 30) return 0;
+    break;
+  case 5:
+    if(d >= 1 && d <= 31) return 0;
+    break;
+  case 6:
+    if(d >= 1 && d <= 30) return 0;
+    break;
+  case 7:
+    if(d >= 1 && d <= 31) return 0;
+    break;
+  case 8:
+    if(d >= 1 && d <= 31) return 0;
+    break;
+  case 9:
+    if(d >= 1 && d <= 30) return 0;
+    break;
+  case 10:
+    if(d >= 1 && d <= 31) return 0;
+    break;
+  case 11:
+    if(d >= 1 && d <= 30) return 0;
+    break;
+  case 12:
+    if(d >= 1 && d <= 31) return 0;
+    break;
+  }
+  return 1;                               /*存在しない年月日である(例外)*/
 }
 
 int main(void)
