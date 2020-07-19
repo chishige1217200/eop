@@ -474,13 +474,14 @@ Comm. : 01955 611337 Primary 56 3.5 Open
 以降の行では，\verb|%|から始まるコマンドの呼び出しを行っている．
 出力結果では，最初の1行に名簿データの登録数を出力する\verb|cmd_check()|関数による\verb|3 profile(s)|という内容が出力されている．それ以降のブロックでは，\verb|%P 2|という引数を含む\verb|cmd_print()|関数の呼び出しで，名簿データの初めから2件が表示され，次に\verb|%P -2|により，名簿データの後ろから2件を降順に表示している．次の\verb|%P 5|は名簿データが3件しか登録されていないため，\verb|%P 3|に読み替えて処理が行われる．引数が無い場合や$0$の場合も同様となる．最後に\verb|%Q|により，プログラムを終了している．
 
-次に，\verb|cmd_read()|\verb|cmd_write()|，\verb|cmd_quit("r")|関数の実行結果について説明する．
+次に，\verb|cmd_read()|\verb|cmd_write()|，\verb|cmd_find()|,\verb|cmd_quit("r")|関数の実行結果について説明する．
 \ref{funclast}節のプログラムに次の内容の\verb|input.txt|をリダイレクションで与えた場合，
 
 {\fontsize{10pt}{11pt} \selectfont
  \begin{verbatim}
 %R input.csv
 %C
+%F 5100127
 %W output.csv
 %Q r
  \end{verbatim}
@@ -507,13 +508,19 @@ Comm. : 01955 611337 Primary 56 3.5 Open
 {\fontsize{10pt}{11pt} \selectfont
  \begin{verbatim}
 3 profile(s)
+Id    : 5100127
+Name  : Bower Primary School
+Birth : 1908-01-19
+Addr. : Bowermadden Bower Caithness
+Comm. : 01955 641225 Primary 25 2.6 Open
+
 正常終了．
  \end{verbatim}
 }
 
 入力データについて説明する．
-まず，\verb|%R|コマンドにより，ファイル\verb|input.csv|を読み込む．その次に\verb|%C|コマンドにより，名簿データの登録数を表示する．そして，\verb|%W|コマンドにより，ファイル\verb|output.csv|に名簿データを書き込む．最後に，\verb|%Q r|により，確認メッセージなしでプログラムを終了している．
-出力結果では，最初の1行に名簿データの登録数を出力する\verb|cmd_check()|関数による\verb|3 profile(s)|という内容が出力されている．これにより，\verb|%R|コマンドにより，正常に名簿データが登録されていることが分かる．2行目には，\verb|%Q r|により呼び出された\verb|cmd_quit()|関数のメッセージが出力されている．
+まず，\verb|%R|コマンドにより，ファイル\verb|input.csv|を読み込む．その次に\verb|%C|コマンドにより，名簿データの登録数を表示する．次に，\verb|%F|コマンドにより，\verb|5100127|に一致する要素を持つ名簿情報を表示する．そして，\verb|%W|コマンドにより，ファイル\verb|output.csv|に名簿データを書き込む．最後に，\verb|%Q r|により，確認メッセージなしでプログラムを終了している．
+出力結果では，最初の1行に名簿データの登録数を出力する\verb|cmd_check()|関数による\verb|3 profile(s)|という内容が出力されている．これにより，\verb|%R|コマンドにより，正常に名簿データが登録されていることが分かる．7行目には，\verb|%Q r|により呼び出された\verb|cmd_quit()|関数のメッセージが出力されている．
 この操作を実行した後，シェル上で\verb|ls|コマンドを使ってファイルを確認すると次のような状態になっている．
 
 {\fontsize{10pt}{11pt} \selectfont
@@ -527,8 +534,139 @@ input.csv  input.txt  output.csv  program.out
 
 diffコマンドを用いて，元の\verb|input.csv|と\verb|output.csv|を比較すると，全く同じ内容になっていることが分かるので，\verb|%W|コマンドが正しく動作していることが分かる．
 
-次に，\verb|cmd_find()|関数の実行結果について説明する．
+最後に，\verb|cmd_sort()|関数の実行結果について説明する．
 \ref{funclast}節のプログラムに次の内容の\verb|input.txt|をリダイレクションで与えた場合，
+
+{\fontsize{10pt}{11pt} \selectfont
+ \begin{verbatim}
+%R input.csv
+%S 1
+%P
+%S 2
+%P
+%S 3
+%P
+%S 4
+%P
+%S 5
+%P
+%Q r
+ \end{verbatim}
+}
+
+\noindent % noindentとはここでは段落を変えない（一字下げをしない）というコマンド．
+以下のような出力が得られる．
+
+{\fontsize{10pt}{11pt} \selectfont
+ \begin{verbatim}
+Id    : 5100046
+Name  : The Bridge
+Birth : 1845-11-02
+Addr. : 14 Seafield Road Longman Inverness
+Comm. : SEN Unit 2.0 Open
+
+Id    : 5100127
+Name  : Bower Primary School
+Birth : 1908-01-19
+Addr. : Bowermadden Bower Caithness
+Comm. : 01955 641225 Primary 25 2.6 Open
+
+Id    : 5100224
+Name  : Canisbay Primary School
+Birth : 1928-07-05
+Addr. : Canisbay Wick
+Comm. : 01955 611337 Primary 56 3.5 Open
+
+Id    : 5100127
+Name  : Bower Primary School
+Birth : 1908-01-19
+Addr. : Bowermadden Bower Caithness
+Comm. : 01955 641225 Primary 25 2.6 Open
+
+Id    : 5100224
+Name  : Canisbay Primary School
+Birth : 1928-07-05
+Addr. : Canisbay Wick
+Comm. : 01955 611337 Primary 56 3.5 Open
+
+Id    : 5100046
+Name  : The Bridge
+Birth : 1845-11-02
+Addr. : 14 Seafield Road Longman Inverness
+Comm. : SEN Unit 2.0 Open
+
+Id    : 5100046
+Name  : The Bridge
+Birth : 1845-11-02
+Addr. : 14 Seafield Road Longman Inverness
+Comm. : SEN Unit 2.0 Open
+
+Id    : 5100127
+Name  : Bower Primary School
+Birth : 1908-01-19
+Addr. : Bowermadden Bower Caithness
+Comm. : 01955 641225 Primary 25 2.6 Open
+
+Id    : 5100224
+Name  : Canisbay Primary School
+Birth : 1928-07-05
+Addr. : Canisbay Wick
+Comm. : 01955 611337 Primary 56 3.5 Open
+
+Id    : 5100046
+Name  : The Bridge
+Birth : 1845-11-02
+Addr. : 14 Seafield Road Longman Inverness
+Comm. : SEN Unit 2.0 Open
+
+Id    : 5100127
+Name  : Bower Primary School
+Birth : 1908-01-19
+Addr. : Bowermadden Bower Caithness
+Comm. : 01955 641225 Primary 25 2.6 Open
+
+Id    : 5100224
+Name  : Canisbay Primary School
+Birth : 1928-07-05
+Addr. : Canisbay Wick
+Comm. : 01955 611337 Primary 56 3.5 Open
+
+Id    : 5100224
+Name  : Canisbay Primary School
+Birth : 1928-07-05
+Addr. : Canisbay Wick
+Comm. : 01955 611337 Primary 56 3.5 Open
+
+Id    : 5100127
+Name  : Bower Primary School
+Birth : 1908-01-19
+Addr. : Bowermadden Bower Caithness
+Comm. : 01955 641225 Primary 25 2.6 Open
+
+Id    : 5100046
+Name  : The Bridge
+Birth : 1845-11-02
+Addr. : 14 Seafield Road Longman Inverness
+Comm. : SEN Unit 2.0 Open
+
+正常終了．
+
+ \end{verbatim}
+}
+
+入力データについて説明する．
+まず，\verb|%R|コマンドにより，ファイル\verb|input.csv|を読み込む．その次に\verb|%S|コマンドにより，ID，氏名，誕生日，住所，備考の順に，それぞれ並び変える処理と表示する処理を繰り返す．最後に，\verb|%Q r|により，確認メッセージなしでプログラムを終了している．
+出力結果では，18行毎に指定された要素によるソート後の結果を出力している．初めの18行でIDに関する並び替えを行ったもの，その次の18行で氏名に関する並び替えを行ったものというように，表示している．全ての要素はASCIIコードの昇順になるように並び替えが行われる．正しく並び替えが行われていることを確認するために，\verb|%S 1|により並び替えを行ったものを出力したファイル\verb|output.csv|ものと\verb|sort|コマンドにより並び替えを行ったファイル\verb|sort.txt|を比較した．
+
+{\fontsize{10pt}{11pt} \selectfont
+ \begin{verbatim}
+[user@localhost 10]$ sort input.csv sort.txt
+[user@localhost 10]$ diff -q -s output.csv sort.txt
+ファイル output.csv と sort.txt は同一です
+ \end{verbatim}
+}
+
+よって，\verb|%S|コマンドにより，正しく並び替えが行えているこがを確認できた．
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{考察}
@@ -537,7 +675,7 @@ diffコマンドを用いて，元の\verb|input.csv|と\verb|output.csv|を比�
 \ref{sec:capp}章のプログラムの説明，および，\ref{sec:howresult}章の使用法と実行結果から，
 演習課題として作成したプログラムが，
 \ref{sec:abstract}章で述べた基本要件と基本仕様のいずれも満たしていることを示した．
-ここでは，個別の課題のうち，以下の3つの項目について，考察を述べる．
+ここでは，個別の課題のうち，以下の6つの項目について，考察を述べる．
 % 注：\ref コマンドを用いて適切に参照すること．
 
 \begin{enumerate}
