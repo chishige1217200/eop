@@ -30,7 +30,7 @@
 
 % ToDo: レポート課題等の指示に従って適切に書き換える
 \date{出題日: 2020年04月22日 \\
-      提出日: 2020年07月27日 \\
+      提出日: 2020年07月29日 \\
       締切日: 2020年07月29日 \\}  % 注：最後の\\は不要に見えるが必要．
 
 %%======== 本文 ====================================================%%
@@ -86,7 +86,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 本演習で作成したプログラムが満たすべき要件と仕様として，
-「(1) 基本要件」と「(2) 基本仕様」を示す．
+「(1) 基本要件」，「(2) 基本仕様」と「(3) 追加仕様」を示す．
 
 \subsubsection*{(1) 基本要件}
 
@@ -863,88 +863,97 @@ Comm. : SEN Unit 2.0 Open
 \begin{Verbatim}[fontsize=\small, baselinestretch=0.8]
      1	#include <stdio.h>
      2	
-     3	#define ESC 27                                             /*文字列ESCをESCのASCII
-コードで置換*/
-     4	#define MAX_LINE 1025                                      /*文字配列LINEの
-最大入力数の指定用*/
+     3	#define ESC 27                                             /*文字列ESCを
+ESCのASCIIコードで置換*/
+     4	#define MAX_LINE 1025                                      /*文字配列LIN
+Eの最大入力数の指定用*/
      5	
      6	int subst(char *str, char c1, char c2)
      7	{
-     8	  int i;                                                   /*forループ用*/
-     9	  int c = 0;                                               /*置き換えた文字数の
-カウント用*/
-    10	  for(i = 0; *(str + i) != '\0'; i++)                      /*入力文字列の終端に辿り
-着くまでループ*/
+     8	  int i;                                                   /*forループ用
+*/
+     9	  int c = 0;                                               /*置き換えた
+文字数のカウント用*/
+    10	  for(i = 0; *(str + i) != '\0'; i++)                      /*入力文字列
+の終端に辿り着くまでループ*/
     11	    {
-    12	      if(c1 == c2) break;                                  /*見た目上文字列に変化が
-ないとき*/
-    13	      if(*(str + i) == c1)                                 /*(str + i)の文字がc1の
-文字と同じとき*/
+    12	      if(c1 == c2) break;                                  /*見た目上文
+字列に変化がないとき*/
+    13	      if(*(str + i) == c1)                                 /*(str + i)の
+文字がc1の文字と同じとき*/
     14		{
-    15		  *(str + i) = c2;                                 /*(str + i)の文字をc2の
-文字に置き換える*/
-    16		  c++;                                             /*置き換えた文字を数える*/
+    15		  *(str + i) = c2;                                 /*(str + i)の
+文字をc2の文字に置き換える*/
+    16		  c++;                                             /*置き換えた
+文字を数える*/
     17		}
     18	    }
-    19	  return c;                                                /*置き換えた文字数を戻り値
-とする．*/
+    19	  return c;                                                /*置き換えた
+文字数を戻り値とする．*/
     20	}
     21	
     22	int split(char *str, char *ret[], char sep, int max)
     23	{
-    24	  int i;                                                   /*forループ用*/
-    25	  int c = 0;                                               /*ポインタの配列の指定用*/
+    24	  int i;                                                   /*forループ用
+*/
+    25	  int c = 0;                                               /*ポインタの
+配列の指定用*/
     26	
-    27	  ret[0] = str;                                            /*ret[0]にstrの先頭アドレス
-を代入*/
+    27	  ret[0] = str;                                            /*ret[0]にstr
+の先頭アドレスを代入*/
     28	
-    29	  for(i = 0; *(str + i) != '\0'&& c < max; i++)            /*cがmaxより小さいか，入力
-文字列の終端に辿り着いていないときループ*/
+    29	  for(i = 0; *(str + i) != '\0'&& c < max; i++)            /*cがmaxより
+小さいか，入力文字列の終端に辿り着いていないときループ*/
     30	    {
-    31	      if(*(str + i) == sep)                                /*(str + i)がsepのとき*/
+    31	      if(*(str + i) == sep)                                /*(str + i)が
+sepのとき*/
     32		{
-    33		  *(str + i) = '\0';                               /*(str + i)にNULLを代入*/
+    33		  *(str + i) = '\0';                               /*(str + i)に
+NULLを代入*/
     34		  c++;
-    35		  ret[c] = str + (i + 1);                          /*ret[c]にNULL文字の"次の"
-アドレスを代入*/
+    35		  ret[c] = str + (i + 1);                          /*ret[c]にNUL
+L文字の"次の"アドレスを代入*/
     36		}
     37	    }
-    38	  return c;                                                /*文字列をいくつに分割したか
-を戻り値とする*/
+    38	  return c;                                                /*文字列をい
+くつに分割したかを戻り値とする*/
     39	}
     40	
     41	int get_line(char *line)
     42	{
-    43	  if(fgets(line, MAX_LINE, stdin) == NULL) return 0;       /*入力文字列が空のとき，
-0を戻り値とする．入力文字列は1024文字*/
-    44	  if(*line == ESC) return 0;                               /*直接入力のとき，入力文字列
-を空にできないため，ESCキーの単独入力により0を戻り値とする*/
-    45	  subst(line, '\n', '\0');                                 /*subst関数により，入力の
-改行文字を終端文字に置き換える*/
-    46	  return 1;                                                /*入力文字列が存在したとき，
-1を戻り値とする*/
+    43	  if(fgets(line, MAX_LINE, stdin) == NULL) return 0;       /*入力文字列
+が空のとき，0を戻り値とする．入力文字列は1024文字*/
+    44	  if(*line == ESC) return 0;                               /*直接入力の
+とき，入力文字列を空にできないため，ESCキーの単独入力により0を戻り値とする*/
+    45	  subst(line, '\n', '\0');                                 /*subst関数に
+より，入力の改行文字を終端文字に置き換える*/
+    46	  return 1;                                                /*入力文字列
+が存在したとき，1を戻り値とする*/
     47	}
     48	
     49	int main(void)
     50	{
-    51	  char line[MAX_LINE] = {0};                               /*入力文字列は最大1024文字*/
-    52	  char *ret[10];
-    53	  char sep = ',';                                          /*csvファイルからの入力を
-想定しているため，コンマ*/
+    51	  char line[MAX_LINE] = {0};                               /*入力文字列
+は最大1024文字*/
+    52	  char *ret[11];
+    53	  char sep = ',';                                          /*csvファイル
+からの入力を想定しているため，カンマ*/
     54	  int max = 10;
     55	  int c, i, a = 1;
     56	  
-    57	  while(get_line(line))                                    /*get_line関数を呼び出し，
-戻り値が0ならループを終了*/
+    57	  while(get_line(line))                                    /*get_line関
+数を呼び出し，戻り値が0ならループを終了*/
     58	    {
     59	      printf("line number:%d\n", a);
     60	      printf("input:\"%s\"\n", line);
-    61	      c = split(line, ret, sep, max);                      /*split関数を呼び出す*/
+    61	      c = split(line, ret, sep, max);                      /*split関数を
+呼び出す*/
     62	      for(i = 0;i <= c; i++)
     63		{
     64		  printf("split[%d]:\"%s\"\n", i, ret[i]);
     65		}
-    66	      printf("\n\n");                                      /*見やすさのために改行*/
+    66	      printf("\n\n");                                      /*見やすさの
+ために改行*/
     67	      a++;
     68	    }
     69	  return 0;
@@ -955,12 +964,13 @@ Comm. : SEN Unit 2.0 Open
 \verb|parse_line()|，\verb|exec_command|関数を加えたプログラムのソースコード(169行)
 \begin{Verbatim}[fontsize=\small, baselinestretch=0.8]
      1	#include <stdio.h>
-     2	#include <stdlib.h>                                        /*exit関数用*/
+     2	#include <stdlib.h>                                        /*exit関数用*
+/
      3	
-     4	#define ESC 27                                             /*文字列ESCをESCのASCII
-コードで置換*/
-     5	#define MAX_LINE 1025                                      /*文字配列LINEの最大入力数
-の指定用*/
+     4	#define ESC 27                                             /*文字列ESCを
+ESCのASCIIコードで置換*/
+     5	#define MAX_LINE 1025                                      /*文字配列LIN
+Eの最大入力数の指定用*/
      6	
      7	/*関数プロトタイプ宣言（煩雑化防止）*/
      8	int subst(char *str, char c1, char c2);
@@ -979,79 +989,91 @@ Comm. : SEN Unit 2.0 Open
     21	
     22	int subst(char *str, char c1, char c2)
     23	{
-    24	  int i;                                                   /*forループ用*/
-    25	  int c = 0;                                               /*置き換えた文字数のカウ
-ント用*/
-    26	  for(i = 0; *(str + i) != '\0'; i++)                      /*入力文字列の終端に辿り
-着くまでループ*/
+    24	  int i;                                                   /*forループ用
+*/
+    25	  int c = 0;                                               /*置き換えた
+文字数のカウント用*/
+    26	  for(i = 0; *(str + i) != '\0'; i++)                      /*入力文字列
+の終端に辿り着くまでループ*/
     27	    {
-    28	      if(c1 == c2) break;                                  /*見た目上文字列に変化が
-ないとき*/
-    29	      if(*(str + i) == c1)                                 /*(str + i)の文字がc1の
-文字と同じとき*/
+    28	      if(c1 == c2) break;                                  /*見た目上文
+字列に変化がないとき*/
+    29	      if(*(str + i) == c1)                                 /*(str + i)の
+文字がc1の文字と同じとき*/
     30		{
-    31		  *(str + i) = c2;                                 /*(str + i)の文字をc2の
-文字に置き換える*/
-    32		  c++;                                             /*置き換えた文字を数える*/
+    31		  *(str + i) = c2;                                 /*(str + i)の
+文字をc2の文字に置き換える*/
+    32		  c++;                                             /*置き換えた
+文字を数える*/
     33		}
     34	    }
-    35	  return c;                                                /*置き換えた文字数を戻り値
-とする．*/
+    35	  return c;                                                /*置き換えた
+文字数を戻り値とする．*/
     36	}
     37	
     38	int split(char *str, char *ret[], char sep, int max)
     39	{
-    40	  int i;                                                   /*forループ用*/
-    41	  int c = 0;                                               /*ポインタの配列の指定用*/
+    40	  int i;                                                   /*forループ用
+*/
+    41	  int c = 0;                                               /*ポインタの
+配列の指定用*/
     42	
-    43	  ret[0] = str;                                            /*ret[0]にstrの先頭アドレ
-スを代入*/
+    43	  ret[0] = str;                                            /*ret[0]にstr
+の先頭アドレスを代入*/
     44	
-    45	  for(i = 0; *(str + i) != '\0'&& c < max; i++)            /*cがmaxより小さいかつ入力
-文字列の終端に辿り着いていないときループ*/
+    45	  for(i = 0; *(str + i) != '\0'&& c < max; i++)            /*cがmaxより
+小さいかつ入力文字列の終端に辿り着いていないときループ*/
     46	    {
-    47	      if(*(str + i) == sep)                                /*(str + i)がsepのとき*/
+    47	      if(*(str + i) == sep)                                /*(str + i)が
+sepのとき*/
     48		{
-    49		  *(str + i) = '\0';                               /*(str + i)にNULLを代入*/
+    49		  *(str + i) = '\0';                               /*(str + i)に
+NULLを代入*/
     50		  c++;
-    51		  ret[c] = str + (i + 1);                          /*ret[c]にNULL文字の"次の"
-アドレスを代入*/
+    51		  ret[c] = str + (i + 1);                          /*ret[c]にNUL
+L文字の"次の"アドレスを代入*/
     52		}
     53	    }
-    54	  return c;                                                /*文字列をいくつに分割したか
-を戻り値とする*/
+    54	  return c;                                                /*文字列をい
+くつに分割したかを戻り値とする*/
     55	}
     56	
     57	int get_line(char *line)
     58	{
-    59	  if(fgets(line, MAX_LINE, stdin) == NULL) return 0;       /*入力文字列が空のとき，0を
-戻り値とする．入力文字列は1024文字*/
-    60	  if(*line == ESC) return 0;                               /*ESCを1文字目に入力すること
-により0を戻り値とする（デバッグ用）*/
-    61	  subst(line, '\n', '\0');                                 /*subst関数により，入力の
-改行文字を終端文字に置き換える*/
-    62	  return 1;                                                /*入力文字列が存在したとき，
-1を戻り値とする*/
+    59	  if(fgets(line, MAX_LINE, stdin) == NULL) return 0;       /*入力文字列
+が空のとき，0を戻り値とする．入力文字列は1024文字*/
+    60	  if(*line == ESC) return 0;                               /*直接入力の
+とき，入力文字列を空にできないため，ESCキーの単独入力により0を戻り値とする（デバ
+ッグ用）*/
+    61	  subst(line, '\n', '\0');                                 /*subst関数に
+より，入力の改行文字を終端文字に置き換える*/
+    62	  return 1;                                                /*入力文字列
+が存在したとき，1を戻り値とする*/
     63	}
     64	
     65	void parse_line(char *line)
     66	{
-    67	  char cmd;                                                /*%の次の1文字を格納用*/
-    68	  char *param;                                             /*コマンドのパラメータとなる
-文字列へのポインタ用*/
-    69	  char *buffer = "(Null Parameter)";                       /*例外処理用*/
+    67	  char cmd;                                                /*%の次の1文
+字を格納用*/
+    68	  char *param;                                             /*コマンドの
+パラメータとなる文字列へのポインタ用*/
+    69	  char *buffer = "(Null Parameter)";                       /*例外処理用*
+/
     70	
-    71	  if(*line == '%')                                         /*入力文字列の1文字目が%のとき*/
+    71	  if(*line == '%')                                         /*入力文字列
+の1文字目が%のとき*/
     72	    {
-    73	      cmd = *(line + 1);                                   /*cmdに入力文字列の2文字目
-の値を代入*/
-    74	      if(*(line + 3) != '\0') param = (line + 3);          /*ポインタlineに3を足した
-アドレスをポインタparamに代入*/
-    75	      else param = buffer;                                 /*入力文字列にパラメータ部が
-無いとき，文字列"(Null Parameter)"のアドレスをポインタparamに代入*/
+    73	      cmd = *(line + 1);                                   /*cmdに入力文
+字列の2文字目の値を代入*/
+    74	      if(*(line + 3) != '\0') param = (line + 3);          /*ポインタlin
+eに3を足したアドレスをポインタparamに代入*/
+    75	      else param = buffer;                                 /*入力文字列
+にパラメータ部が無いとき，文字列"(Null Parameter)"のアドレスをポインタparamに代
+入*/
     76	      exec_command(cmd, param);
     77	    }
-    78	  else                                                     /*入力がコマンドではないとき*/
+    78	  else                                                     /*入力がコマ
+ンドではないとき*/
     79	    {
     80	      new_profile(line);
     81	    }
@@ -1061,29 +1083,30 @@ Comm. : SEN Unit 2.0 Open
     85	{
     86	  switch (cmd) {
     87	  case 'Q': cmd_quit();   break;
-    88	  case 'T': printf("Parameter test:\"%s\"\n", param); break;   /*ポインタparamの参照先
-から後ろに向かって，NULLまで文字列を表示する（デバッグ用）*/
+    88	  case 'T': printf("Parameter test:\"%s\"\n", param); break;   /*ポイン
+タparamの参照先から後ろに向かって，NULLまで文字列を表示する（デバッグ用）*/
     89	  case 'C': cmd_check();  break;
     90	  case 'P': cmd_print();  break;
     91	  case 'R': cmd_read();   break;
     92	  case 'W': cmd_write();  break;
     93	  case 'F': cmd_find();   break;
     94	  case 'S': cmd_sort();   break;
-    95	  default: fprintf(stderr, "%%%c command is invoked with arg: \"%s\"\n", cmd, param);
- break;/*エラーメッセージを表示*/
+    95	  default: fprintf(stderr, "%%%c command is invoked with arg: \"%s\"\n",
+ cmd, param); break;/*エラーメッセージを表示*/
     96	  }
     97	}
     98	
     99	void cmd_quit()
    100	{
-   101	  printf("Do you want to quit?(y/n)\n");                   /*確認メッセージ*/
+   101	  printf("Do you want to quit?(y/n)\n");                   /*確認メッセ
+ージ*/
    102	  if(getchar() == 'y')
    103	    {
    104	      printf("quit success.\n");
    105	      exit(0);
    106	    }
-   107	  getchar();                                               /*getcharでの入力時に改行文字が
-残ってしまうため*/
+   107	  getchar();                                               /*getcharでの
+入力時に改行文字が残ってしまうため*/
    108	  printf("quit cancelled.\n");
    109	}
    110	
@@ -1120,34 +1143,36 @@ Comm. : SEN Unit 2.0 Open
    141	void new_profile(char *line)
    142	{
    143	  char *ret[11];
-   144	  char sep = ',';                                          /*csvファイルからの入力を想定して
-いるため，コンマ*/
+   144	  char sep = ',';                                          /*csvファイル
+からの入力を想定しているため，カンマ*/
    145	  int max = 10;
    146	  int c, i;
-   147	  static int a = 1;                                        /*値をmain関数終了時まで保持する
-必要があるため，static int型*/
+   147	  static int a = 1;                                        /*値をmain関
+数終了時まで保持する必要があるため，static int型*/
    148	  
    149	  printf("line number:%d\n", a);
    150	  printf("input:\"%s\"\n", line);
-   151	  c = split(line, ret, sep, max);                          /*split関数を呼び出す*/
+   151	  c = split(line, ret, sep, max);                          /*split関数を
+呼び出す*/
    152	  for(i = 0;i <= c; i++)
    153	    {
    154	      printf("split[%d]:\"%s\"\n", i, ret[i]);
    155	    }
-   156	  printf("\n");                                            /*見やすさのために改行*/
+   156	  printf("\n");                                            /*見やすさの
+ために改行*/
    157	  a++;
    158	}
    159	
    160	int main(void)
    161	{
-   162	  char LINE[MAX_LINE] = {0};                               /*入力文字列(1行分)はmain関数で
-管理*/
+   162	  char LINE[MAX_LINE] = {0};                               /*入力文字列(
+1行分)はmain関数で管理*/
    163	
-   164	  while(get_line(LINE))                                    /*文字配列LINEに文字列を入力する
-(get_line関数)*/
+   164	  while(get_line(LINE))                                    /*文字配列LIN
+Eに文字列を入力する(get_line関数)*/
    165	    {
-   166	      parse_line(LINE);                                    /*入力文字列がある場合，構文解析
-を行う(parse_line関数)*/
+   166	      parse_line(LINE);                                    /*入力文字列
+がある場合，構文解析を行う(parse_line関数)*/
    167	    }
    168	  return 0;
    169	}
@@ -1157,13 +1182,15 @@ Comm. : SEN Unit 2.0 Open
 \verb|profile|，\verb|date|構造体と\verb|new_profile()|関数を加えたプログラムのソースコード(239行)
 \begin{Verbatim}[fontsize=\small, baselinestretch=0.8]
      1	#include <stdio.h>
-     2	#include <string.h>                                        /*strncpy関数等用*/
-     3	#include <stdlib.h>                                        /*exit関数用*/
+     2	#include <string.h>                                        /*strncpy関数
+等用*/
+     3	#include <stdlib.h>                                        /*exit関数用*
+/
      4	
-     5	#define ESC 27                                             /*文字列ESCをESC
-のASCIIコードで置換*/
-     6	#define MAX_LINE 1025                                      /*文字配列LINEの
-最大入力数の指定用*/
+     5	#define ESC 27                                             /*文字列ESCを
+ESCのASCIIコードで置換*/
+     6	#define MAX_LINE 1025                                      /*文字配列LIN
+Eの最大入力数の指定用*/
      7	
      8	/*構造体宣言*/
      9	struct date
@@ -1198,45 +1225,47 @@ Comm. : SEN Unit 2.0 Open
     38	void new_profile(struct profile *profile_p, char *line);
     39	
     40	/*グローバル変数宣言*/
-    41	struct profile profile_data_store[10000];                  /*profile情報を
-格納*/
-    42	int profile_data_nitems = 0;                               /*profile情報の
-保存数を格納*/
+    41	struct profile profile_data_store[10000];                  /*profile情報
+を格納*/
+    42	int profile_data_nitems = 0;                               /*profile情報
+の保存数を格納*/
     43	
     44	int subst(char *str, char c1, char c2)
     45	{
-    46	  int i;                                                   /*forループ用*/
-    47	  int c = 0;                                               /*置き換えた文字
-数のカウント用*/
-    48	  for(i = 0; *(str + i) != '\0'; i++)                      /*入力文字列の
-終端に辿り着くまでループ*/
+    46	  int i;                                                   /*forループ用
+*/
+    47	  int c = 0;                                               /*置き換えた
+文字数のカウント用*/
+    48	  for(i = 0; *(str + i) != '\0'; i++)                      /*入力文字列
+の終端に辿り着くまでループ*/
     49	    {
-    50	      if(c1 == c2) break;                                  /*見た目上文字列
-に変化がないとき*/
+    50	      if(c1 == c2) break;                                  /*見た目上文
+字列に変化がないとき*/
     51	      if(*(str + i) == c1)                                 /*(str + i)の
 文字がc1の文字と同じとき*/
     52		{
     53		  *(str + i) = c2;                                 /*(str + i)の
 文字をc2の文字に置き換える*/
-    54		  c++;                                             /*置き換えた文字
-を数える*/
+    54		  c++;                                             /*置き換えた
+文字を数える*/
     55		}
     56	    }
-    57	  return c;                                                /*置き換えた文字
-数を戻り値とする．*/
+    57	  return c;                                                /*置き換えた
+文字数を戻り値とする．*/
     58	}
     59	
     60	int split(char *str, char *ret[], char sep, int max)
     61	{
-    62	  int i;                                                   /*forループ用*/
-    63	  int c = 0;                                               /*ポインタの配列
-の指定用*/
+    62	  int i;                                                   /*forループ用
+*/
+    63	  int c = 0;                                               /*ポインタの
+配列の指定用*/
     64	
     65	  ret[0] = str;                                            /*ret[0]にstr
 の先頭アドレスを代入*/
     66	
-    67	  for(i = 0; *(str + i) != '\0'&& c < max; i++)            /*cがmaxより小
-さいかつ入力文字列の終端に辿り着いていないときループ*/
+    67	  for(i = 0; *(str + i) != '\0'&& c < max; i++)            /*cがmaxより
+小さいかつ入力文字列の終端に辿り着いていないときループ*/
     68	    {
     69	      if(*(str + i) == sep)                                /*(str + i)が
 sepのとき*/
@@ -1244,60 +1273,63 @@ sepのとき*/
     71		  *(str + i) = '\0';                               /*(str + i)に
 NULLを代入*/
     72		  c++;
-    73		  ret[c] = str + (i + 1);                          /*ret[c]にNULL
-文字の"次の"アドレスを代入*/
+    73		  ret[c] = str + (i + 1);                          /*ret[c]にNUL
+L文字の"次の"アドレスを代入*/
     74		}
     75	    }
-    76	  return c;                                                /*文字列をいく
-つに分割したかを戻り値とする*/
+    76	  return c;                                                /*文字列をい
+くつに分割したかを戻り値とする*/
     77	}
     78	
     79	int get_line(char *line)
     80	{
-    81	  if(fgets(line, MAX_LINE, stdin) == NULL) return 0;       /*入力文字列が
-空のとき，0を戻り値とする．入力文字列は1024文字*/
+    81	  if(fgets(line, MAX_LINE, stdin) == NULL) return 0;       /*入力文字列
+が空のとき，0を戻り値とする．入力文字列は1024文字*/
     82	  if(*line == ESC) return 0;                               /*直接入力の
-とき，入力文字列を空にできないため，ESCキーの単独入力により0を戻り値とする（デバッグ用）*/
+とき，入力文字列を空にできないため，ESCキーの単独入力により0を戻り値とする（デバ
+ッグ用）*/
     83	  subst(line, '\n', '\0');                                 /*subst関数に
 より，入力の改行文字を終端文字に置き換える*/
-    84	  return 1;                                                /*入力文字列が
-存在したとき，1を戻り値とする*/
+    84	  return 1;                                                /*入力文字列
+が存在したとき，1を戻り値とする*/
     85	}
     86	
     87	void parse_line(char *line)
     88	{
-    89	  char cmd;                                                /*%の次の1文字
-を格納用*/
+    89	  char cmd;                                                /*%の次の1文
+字を格納用*/
     90	  char *param;                                             /*コマンドの
 パラメータとなる文字列へのポインタ用*/
-    91	  char *buffer = "(Null Parameter)";                       /*例外処理用*/
+    91	  char *buffer = "(Null Parameter)";                       /*例外処理用*
+/
     92	
     93	  if(*line == '%')                                         /*入力文字列
 の1文字目が%のとき*/
     94	    {
-    95	      cmd = *(line + 1);                                   /*cmdに入力
-文字列の2文字目の値を代入*/
-    96	      if(*(line + 3) != '\0')                              /*パラメータ部
-があるとき*/
+    95	      cmd = *(line + 1);                                   /*cmdに入力文
+字列の2文字目の値を代入*/
+    96	      if(*(line + 3) != '\0')                              /*パラメータ
+部があるとき*/
     97		{
-    98		  if(*(line + 2) != ' ')                           /*3文字目が空白
-でないとき*/
+    98		  if(*(line + 2) != ' ')                           /*3文字目が空
+白でないとき*/
     99		    {
    100		      param = line + 2;
-   101		      printf("引数を要するコマンド入力の場合，3文字目は空白である必要が
-あります．\n処理を中止しました．\n\n");
+   101		      printf("引数を要するコマンド入力の場合，3文字目は空白であ
+る必要があります．\n処理を中止しました．\n\n");
    102		      return;
    103		    }
    104		  else
-   105		  param = line + 3;                                /*ポインタline
-に3を足したアドレスをポインタparamに代入*/
+   105		  param = line + 3;                                /*ポインタlin
+eに3を足したアドレスをポインタparamに代入*/
    106		}
-   107	      else param = buffer;                                 /*入力文字列に
-パラメータ部が無いとき，文字列"(Null Parameter)"のアドレスをポインタparamに代入*/
+   107	      else param = buffer;                                 /*入力文字列
+にパラメータ部が無いとき，文字列"(Null Parameter)"のアドレスをポインタparamに代
+入*/
    108	      exec_command(cmd, param);
    109	    }
-   110	  else                                                     /*入力がコマンド
-ではないとき*/
+   110	  else                                                     /*入力がコマ
+ンドではないとき*/
    111	    {
    112	      new_profile(&profile_data_store[profile_data_nitems++] ,line);
    113	    }
@@ -1307,16 +1339,16 @@ NULLを代入*/
    117	{
    118	  switch (cmd) {
    119	  case 'Q': cmd_quit();   break;
-   120	  case 'T': printf("Parameter test:\"%s\"\n", param); break;   /*ポインタparam
-の参照先から後ろに向かって，NULLまで文字列を表示する（デバッグ用）*/
+   120	  case 'T': printf("Parameter test:\"%s\"\n", param); break;   /*ポイン
+タparamの参照先から後ろに向かって，NULLまで文字列を表示する（デバッグ用）*/
    121	  case 'C': cmd_check();  break;
    122	  case 'P': cmd_print();  break;
    123	  case 'R': cmd_read();   break;
    124	  case 'W': cmd_write();  break;
    125	  case 'F': cmd_find();   break;
    126	  case 'S': cmd_sort();   break;
-   127	  default: fprintf(stderr, "%%%c command is invoked with arg: \"%s\"\n", cmd, param); 
-break;/*エラーメッセージを表示*/
+   127	  default: fprintf(stderr, "%%%c command is invoked with arg: \"%s\"\n",
+ cmd, param); break;/*エラーメッセージを表示*/
    128	  }
    129	}
    130	
@@ -1326,10 +1358,11 @@ break;/*エラーメッセージを表示*/
    134	
    135	  while(1)
    136	    {
-   137	      printf("Do you want to quit?(y/n)\n");               /*確認メッセージ*/
+   137	      printf("Do you want to quit?(y/n)\n");               /*確認メッセ
+ージ*/
    138	      c = getchar();
-   139	      getchar();                                           /*getcharでの入力
-時に改行文字が残ってしまうため*/
+   139	      getchar();                                           /*getcharでの
+入力時に改行文字が残ってしまうため*/
    140	      if(c == 'y')
    141		{
    142		  printf("quit success.\n\n");
@@ -1376,60 +1409,66 @@ break;/*エラーメッセージを表示*/
    183	void new_profile(struct profile *profile_p, char *line)
    184	{
    185	  char *ret[10];
-   186	  char *ret2[4];                                           /*誕生日の情報
-を分割し，その先頭アドレスを保存*/
+   186	  char *ret2[4];                                           /*誕生日の情
+報を分割し，その先頭アドレスを保存*/
    187	  char sep = ',';                                          /*csvファイル
-からの入力を想定しているため，コンマ*/
-   188	  char sep2 = '-';                                         /*誕生日の入力
-文字列にあるハイフンで区切るため，ハイフン*/
+からの入力を想定しているため，カンマ*/
+   188	  char sep2 = '-';                                         /*誕生日の入
+力文字列にあるハイフンで区切るため，ハイフン*/
    189	  int max = 10;
    190	  int max2 = 4;
    191	  int c, birth_c;
-   192	  static int a = 1;                                        /*値をmain関数
-終了時まで保持する必要があるため，static int型*/
+   192	  static int a = 1;                                        /*値をmain関
+数終了時まで保持する必要があるため，static int型*/
    193	  
-   194	  printf("line number:%d\n", a);                           /*行番号表示（デ
-バッグ用）*/
-   195	  //printf("input:\"%s\"\n", line);                        /*入力文字列をそ
-のまま表示（デバッグ用）*/
-   196	  c = split(line, ret, sep, max);                          /*ID，名前などの
-情報を分割する*/
-   197	  if(c <= 2)                                               /*備考以外の入力
-がない場合*/
+   194	  printf("line number:%d\n", a);                           /*行番号表示
+（デバッグ用）*/
+   195	  //printf("input:\"%s\"\n", line);                        /*入力文字列
+をそのまま表示（デバッグ用）*/
+   196	  c = split(line, ret, sep, max);                          /*ID，名前な
+どの情報を分割する*/
+   197	  if(c <= 2)                                               /*備考以外の
+入力がない場合*/
    198	    {
-   199	      printf("情報はID，名前，誕生日，住所，備考の順で入力される必要があり，備考以外
-は必須項目です．\n処理を中止しました．\n\n");
-   200	      profile_data_nitems--;                               /*処理中止により，
-構造体に情報を書き込まないため*/
+   199	      printf("情報はID，名前，誕生日，住所，備考の順で入力される必要があ
+り，備考以外は必須項目です．\n処理を中止しました．\n\n");
+   200	      profile_data_nitems--;                               /*処理中止に
+より，構造体に情報を書き込まないため*/
    201	      return;
    202	    }
-   203	  birth_c = split(ret[2], ret2, sep2, max2);               /*誕生日の年，月，
-日を分割する*/
-   204	  if(birth_c != 2)                                         /*誕生日の年，月，
-日を正常に分割できない場合*/
+   203	  birth_c = split(ret[2], ret2, sep2, max2);               /*誕生日の年
+，月，日を分割する*/
+   204	  if(birth_c != 2)                                         /*誕生日の年
+，月，日を正常に分割できない場合*/
    205	    {
-   206	      printf("誕生日は\"年-月-日\"の形で入力される必要があります．\n処理を中止しまし
-た．\n\n"); /*年，月，日に分割できない場合，処理を停止*/
-   207	      profile_data_nitems--;                               /*処理中止により，
-構造体に情報を書き込まないため*/
+   206	      printf("誕生日は\"年-月-日\"の形で入力される必要があります．\n処理
+を中止しました．\n\n"); /*年，月，日に分割できない場合，処理を停止*/
+   207	      profile_data_nitems--;                               /*処理中止に
+より，構造体に情報を書き込まないため*/
    208	      return;
    209	    }
    210	
    211	  /*構造体への情報の書き込み処理*/
-   212	  profile_p->id = atoi(ret[0]);                            /*IDの書き込み*/
-   213	  strncpy(profile_p->name, ret[1], 70);                    /*名前の書き込み*/
-   214	  (profile_p->birthday).y = atoi(ret2[0]);                 /*誕生年の書き込み*/
-   215	  (profile_p->birthday).m = atoi(ret2[1]);                 /*誕生月の書き込み*/
-   216	  (profile_p->birthday).d = atoi(ret2[2]);                 /*誕生日の書き込み*/
-   217	  strncpy(profile_p->address, ret[3], 70);                 /*住所の書き込み*/
+   212	  profile_p->id = atoi(ret[0]);                            /*IDの書き込
+み*/
+   213	  strncpy(profile_p->name, ret[1], 70);                    /*名前の書き
+込み*/
+   214	  (profile_p->birthday).y = atoi(ret2[0]);                 /*誕生年の書
+き込み*/
+   215	  (profile_p->birthday).m = atoi(ret2[1]);                 /*誕生月の書
+き込み*/
+   216	  (profile_p->birthday).d = atoi(ret2[2]);                 /*誕生日の書
+き込み*/
+   217	  strncpy(profile_p->address, ret[3], 70);                 /*住所の書き
+込み*/
    218	  if(ret[4] != NULL)
-   219	    strncpy(profile_p->biko, ret[4], 70);                  /*備考があるときのみ，
-備考の書き込み*/
+   219	    strncpy(profile_p->biko, ret[4], 70);                  /*備考がある
+ときのみ，備考の書き込み*/
    220	
    221	  printf("id:\"%d\"\n", profile_p->id);
    222	  printf("name:\"%s\"\n", profile_p->name);
-   223	  printf("birthday:\"%d-%d-%d\"\n", (profile_p->birthday).y, 
-(profile_p->birthday).m, (profile_p->birthday).d);
+   223	  printf("birthday:\"%d-%d-%d\"\n", (profile_p->birthday).y, (profile_p-
+>birthday).m, (profile_p->birthday).d);
    224	  printf("address:\"%s\"\n",profile_p->address);
    225	  printf("biko:\"%s\"\n\n",profile_p->biko);
    226	
@@ -1438,18 +1477,17 @@ break;/*エラーメッセージを表示*/
    229	
    230	int main(void)
    231	{
-   232	  char LINE[MAX_LINE] = {0};                               /*入力文字列(1行分)は
-main関数で管理*/
+   232	  char LINE[MAX_LINE] = {0};                               /*入力文字列(
+1行分)はmain関数で管理*/
    233	
-   234	  while(get_line(LINE))                                    /*文字配列LINEに文字列
-を入力する(get_line関数)*/
+   234	  while(get_line(LINE))                                    /*文字配列LIN
+Eに文字列を入力する(get_line関数)*/
    235	    {
-   236	      parse_line(LINE);                                    /*入力文字列がある場合，
-構文解析を行う(parse_line関数)*/
+   236	      parse_line(LINE);                                    /*入力文字列
+がある場合，構文解析を行う(parse_line関数)*/
    237	    }
    238	  return 0;
    239	}
-
 \end{Verbatim}
 
 \subsection{プログラミング演習1第5回講義のプログラム}\label{func5}
@@ -1460,13 +1498,15 @@ main関数で管理*/
 
 \begin{Verbatim}[fontsize=\small, baselinestretch=0.8]
      1	#include <stdio.h>
-     2	#include <string.h>                                        /*strncpy関数等用*/
-     3	#include <stdlib.h>                                        /*exit関数用*/
+     2	#include <string.h>                                        /*strncpy関数
+等用*/
+     3	#include <stdlib.h>                                        /*exit関数用*
+/
      4	
-     5	#define ESC 27                                             /*文字列ESCをESC
-のASCIIコードで置換*/
-     6	#define MAX_LINE 1025                                      /*文字配列LINEの
-最大入力数の指定用*/
+     5	#define ESC 27                                             /*文字列ESCを
+ESCのASCIIコードで置換*/
+     6	#define MAX_LINE 1025                                      /*文字配列LIN
+Eの最大入力数の指定用*/
      7	
      8	/*構造体宣言*/
      9	struct date
@@ -1501,45 +1541,47 @@ main関数で管理*/
     38	void new_profile(struct profile *profile_p, char *line);
     39	
     40	/*グローバル変数宣言*/
-    41	struct profile profile_data_store[10000];                  /*profile情報を
-格納*/
-    42	int profile_data_nitems = 0;                               /*profile情報の
-保存数を格納*/
+    41	struct profile profile_data_store[10000];                  /*profile情報
+を格納*/
+    42	int profile_data_nitems = 0;                               /*profile情報
+の保存数を格納*/
     43	
     44	int subst(char *str, char c1, char c2)
     45	{
-    46	  int i;                                                   /*forループ用*/
-    47	  int c = 0;                                               /*置き換えた文字
-数のカウント用*/
-    48	  for(i = 0; *(str + i) != '\0'; i++)                      /*入力文字列の
-終端に辿り着くまでループ*/
+    46	  int i;                                                   /*forループ用
+*/
+    47	  int c = 0;                                               /*置き換えた
+文字数のカウント用*/
+    48	  for(i = 0; *(str + i) != '\0'; i++)                      /*入力文字列
+の終端に辿り着くまでループ*/
     49	    {
-    50	      if(c1 == c2) break;                                  /*見た目上文字列
-に変化がないとき*/
+    50	      if(c1 == c2) break;                                  /*見た目上文
+字列に変化がないとき*/
     51	      if(*(str + i) == c1)                                 /*(str + i)の
 文字がc1の文字と同じとき*/
     52		{
     53		  *(str + i) = c2;                                 /*(str + i)の
 文字をc2の文字に置き換える*/
-    54		  c++;                                             /*置き換えた文字
-を数える*/
+    54		  c++;                                             /*置き換えた
+文字を数える*/
     55		}
     56	    }
-    57	  return c;                                                /*置き換えた文字
-数を戻り値とする．*/
+    57	  return c;                                                /*置き換えた
+文字数を戻り値とする．*/
     58	}
     59	
     60	int split(char *str, char *ret[], char sep, int max)
     61	{
-    62	  int i;                                                   /*forループ用*/
-    63	  int c = 0;                                               /*ポインタの配列
-の指定用*/
+    62	  int i;                                                   /*forループ用
+*/
+    63	  int c = 0;                                               /*ポインタの
+配列の指定用*/
     64	
     65	  ret[0] = str;                                            /*ret[0]にstr
 の先頭アドレスを代入*/
     66	
-    67	  for(i = 0; *(str + i) != '\0'&& c < max; i++)            /*cがmaxより小
-さいかつ入力文字列の終端に辿り着いていないときループ*/
+    67	  for(i = 0; *(str + i) != '\0'&& c < max; i++)            /*cがmaxより
+小さいかつ入力文字列の終端に辿り着いていないときループ*/
     68	    {
     69	      if(*(str + i) == sep)                                /*(str + i)が
 sepのとき*/
@@ -1547,43 +1589,43 @@ sepのとき*/
     71		  *(str + i) = '\0';                               /*(str + i)に
 NULLを代入*/
     72		  c++;
-    73		  ret[c] = str + (i + 1);                          /*ret[c]にNULL
-文字の"次の"アドレスを代入*/
+    73		  ret[c] = str + (i + 1);                          /*ret[c]にNUL
+L文字の"次の"アドレスを代入*/
     74		}
     75	    }
-    76	  return c;                                                /*文字列をいく
-つに分割したかを戻り値とする*/
+    76	  return c;                                                /*文字列をい
+くつに分割したかを戻り値とする*/
     77	}
     78	
     79	int get_line(char *line)
     80	{
-    81	  if(fgets(line, MAX_LINE, stdin) == NULL) return 0;       /*入力文字列が
-空のとき，0を戻り値とする．入力文字列は1024文字*/
-    82	  if(*line == ESC) cmd_quit();                             /*デバッグ用*/
+    81	  if(fgets(line, MAX_LINE, stdin) == NULL) return 0;       /*入力文字列
+が空のとき，0を戻り値とする．入力文字列は1024文字*/
+    82	  if(*line == ESC) cmd_quit();
     83	  subst(line, '\n', '\0');                                 /*subst関数に
 より，入力の改行文字を終端文字に置き換える*/
-    84	  return 1;                                                /*入力文字列が
-存在したとき，1を戻り値とする*/
+    84	  return 1;                                                /*入力文字列
+が存在したとき，1を戻り値とする*/
     85	}
     86	
     87	void parse_line(char *line)
     88	{
-    89	  char cmd;                                                /*%の次の1文字
-を格納用*/
+    89	  char cmd;                                                /*%の次の1文
+字を格納用*/
     90	  char *param;                                             /*コマンドの
 パラメータとなる文字列へのポインタ用*/
     91	
     92	  if(*line == '%')                                         /*入力文字列
 の1文字目が%のとき*/
     93	    {
-    94	      cmd = *(line + 1);                                   /*cmdに入力
-文字列の2文字目の値を代入*/
-    95	      param = line + 3;                                    /*paramにパラメータ
-部を代入*/
+    94	      cmd = *(line + 1);                                   /*cmdに入力文
+字列の2文字目の値を代入*/
+    95	      param = line + 3;                                    /*paramにパラ
+メータ部を代入*/
     96	      exec_command(cmd, param);
     97	    }
-    98	  else                                                     /*入力がコマンド
-ではないとき*/
+    98	  else                                                     /*入力がコマ
+ンドではないとき*/
     99	    {
    100	      new_profile(&profile_data_store[profile_data_nitems++] ,line);
    101	    }
@@ -1593,16 +1635,16 @@ NULLを代入*/
    105	{
    106	  switch (cmd) {
    107	  case 'Q': cmd_quit();   break;
-   108	    //case 'T': printf("Parameter test:\"%s\"\n", param); break;   /*ポインタparam
-の参照先から後ろに向かって，NULLまで文字列を表示する（デバッグ用）*/
+   108	    //case 'T': printf("Parameter test:\"%s\"\n", param); break;   /*ポ
+インタparamの参照先から後ろに向かって，NULLまで文字列を表示する（デバッグ用）*/
    109	  case 'C': cmd_check();  break;
    110	  case 'P': cmd_print(param);  break;
    111	  case 'R': cmd_read();   break;
    112	  case 'W': cmd_write();  break;
    113	  case 'F': cmd_find();   break;
    114	  case 'S': cmd_sort();   break;
-   115	  default: fprintf(stderr, "Invalid command %c: ignored.\n", cmd); break;/*エラー
-メッセージを表示*/
+   115	  default: fprintf(stderr, "Invalid command %c: ignored.\n", cmd); break
+;/*エラーメッセージを表示*/
    116	  }
    117	}
    118	
@@ -1612,10 +1654,11 @@ NULLを代入*/
    122	
    123	  //while(1)
    124	  //{
-   125	  //printf("Do you want to quit?(y/n)\n");               /*確認メッセージ*/
+   125	  //printf("Do you want to quit?(y/n)\n");               /*確認メッセー
+ジ*/
    126	  //c = getchar();
-   127	  //getchar();                                           /*getcharでの入力
-時に改行文字が残ってしまうため*/
+   127	  //getchar();                                           /*getcharでの入
+力時に改行文字が残ってしまうため*/
    128	  //if(c == 'y')
    129	  //{
    130	  //printf("quit success.\n\n");
@@ -1637,33 +1680,37 @@ NULLを代入*/
    146	void cmd_print(char *param)
    147	{
    148	  int a = 0;
-   149	  int i = 0;                                                 /*forループ用*/
+   149	  int i = 0;                                                 /*forループ
+用*/
    150	
-   151	  a = atoi(param);                                           /*文字列をint型の値に変換*/
+   151	  a = atoi(param);                                           /*文字列をi
+nt型の値に変換*/
    152	
    153	  /*aの絶対値がprofile_data_nitemsより大きいときかa=0のとき*/
    154	  if(abs(a) >= profile_data_nitems|| a == 0) a = profile_data_nitems;
    155	
-   156	  if(a > 0)                                                  /*引数が正の整数のとき及び例外*/
+   156	  if(a > 0)                                                  /*引数が正
+の整数のとき及び例外*/
    157	    {
    158	      for(i = 0; i < a; i++)
    159	        {
    160		  printf("Id    : %d\n", profile_data_store[i].id);
    161		  printf("Name  : %s\n", profile_data_store[i].name);
-   162		  printf("Birth : %04d-%02d-%02d\n", profile_data_store[i].birthday.y, profile_
-data_store[i].birthday.m, profile_data_store[i].birthday.d);
+   162		  printf("Birth : %04d-%02d-%02d\n", profile_data_store[i].birth
+day.y, profile_data_store[i].birthday.m, profile_data_store[i].birthday.d);
    163		  printf("Addr. : %s\n",profile_data_store[i].address);
    164		  printf("Comm. : %s\n\n",profile_data_store[i].biko);
    165		}
    166	    }
-   167	  else if(a < 0)                                             /*引数が負の整数のとき*/
+   167	  else if(a < 0)                                             /*引数が負
+の整数のとき*/
    168	    {
    169	      for(i = profile_data_nitems + a; i < profile_data_nitems; i++)
    170		{
    171		  printf("Id    : %d\n", profile_data_store[i].id);
    172		  printf("Name  : %s\n", profile_data_store[i].name);
-   173		  printf("Birth : %04d-%02d-%02d\n", profile_data_store[i].birthday.y, profile_
-data_store[i].birthday.m, profile_data_store[i].birthday.d);
+   173		  printf("Birth : %04d-%02d-%02d\n", profile_data_store[i].birth
+day.y, profile_data_store[i].birthday.m, profile_data_store[i].birthday.d);
    174		  printf("Addr. : %s\n",profile_data_store[i].address);
    175		  printf("Comm. : %s\n\n",profile_data_store[i].biko);
    176		}
@@ -1692,67 +1739,74 @@ data_store[i].birthday.m, profile_data_store[i].birthday.d);
    199	void new_profile(struct profile *profile_p, char *line)
    200	{
    201	  char *ret[10];
-   202	  char *ret2[4];                                           /*誕生日の情報
-を分割し，その先頭アドレスを保存*/
+   202	  char *ret2[4];                                           /*誕生日の情
+報を分割し，その先頭アドレスを保存*/
    203	  char sep = ',';                                          /*csvファイル
-からの入力を想定しているため，コンマ*/
-   204	  char sep2 = '-';                                         /*誕生日の入力
-文字列にあるハイフンで区切るため，ハイフン*/
+からの入力を想定しているため，カンマ*/
+   204	  char sep2 = '-';                                         /*誕生日の入
+力文字列にあるハイフンで区切るため，ハイフン*/
    205	  int max = 10;
    206	  int max2 = 4;
    207	  int c, birth_c;
-   208	  int MAX_BIKO = 0;                                        /*備考の文字数
-カウント用*/
+   208	  int MAX_BIKO = 0;                                        /*備考の文字
+数カウント用*/
    209	  
-   210	  c = split(line, ret, sep, max);                          /*ID，名前などの
-情報を分割する*/
-   211	  if(c != 4)                                               /*入力形式が合わ
-ない場合*/
+   210	  c = split(line, ret, sep, max);                          /*ID，名前な
+どの情報を分割する*/
+   211	  if(c != 4)                                               /*入力形式が
+合わない場合*/
    212	    {
-   213	      fprintf(stderr, "情報はID，名前，誕生日，住所，備考の順で入力される必要があり
-ます．\n処理を中止しました．\n\n");
-   214	      profile_data_nitems--;                               /*処理中止により，
-構造体に情報を書き込まないため*/
+   213	      fprintf(stderr, "情報はID，名前，誕生日，住所，備考の順で入力され
+る必要があります．\n処理を中止しました．\n\n");
+   214	      profile_data_nitems--;                               /*処理中止に
+より，構造体に情報を書き込まないため*/
    215	      return;
    216	    }
-   217	  birth_c = split(ret[2], ret2, sep2, max2);               /*誕生日の年，月，
-日を分割する*/
-   218	  if(birth_c != 2)                                         /*誕生日の年，月，
-日を正常に分割できない場合*/
+   217	  birth_c = split(ret[2], ret2, sep2, max2);               /*誕生日の年
+，月，日を分割する*/
+   218	  if(birth_c != 2)                                         /*誕生日の年
+，月，日を正常に分割できない場合*/
    219	      {
-   220		fprintf(stderr, "誕生日は\"年-月-日\"の形で入力される必要があります．\n処理を中止
-しました．\n\n"); /*年，月，日に分割できない場合，処理を停止*/
-   221		profile_data_nitems--;                             /*処理中止により，
-構造体に情報を書き込まないため*/
+   220		fprintf(stderr, "誕生日は\"年-月-日\"の形で入力される必要があり
+ます．\n処理を中止しました．\n\n"); /*年，月，日に分割できない場合，処理を停止*/
+   221		profile_data_nitems--;                             /*処理中止に
+より，構造体に情報を書き込まないため*/
    222		return;
    223	      }
    224	
    225	  /*構造体への情報の書き込み処理*/
-   226	  profile_p->id = atoi(ret[0]);                            /*IDの書き込み*/
-   227	  strncpy(profile_p->name, ret[1], 69);                    /*名前の書き込み*/
-   228	  (profile_p->birthday).y = atoi(ret2[0]);                 /*誕生年の書き込み*/
-   229	  (profile_p->birthday).m = atoi(ret2[1]);                 /*誕生月の書き込み*/
-   230	  (profile_p->birthday).d = atoi(ret2[2]);                 /*誕生日の書き込み*/
-   231	  strncpy(profile_p->address, ret[3], 69);                 /*住所の書き込み*/
+   226	  profile_p->id = atoi(ret[0]);                            /*IDの書き込
+み*/
+   227	  strncpy(profile_p->name, ret[1], 69);                    /*名前の書き
+込み*/
+   228	  (profile_p->birthday).y = atoi(ret2[0]);                 /*誕生年の書
+き込み*/
+   229	  (profile_p->birthday).m = atoi(ret2[1]);                 /*誕生月の書
+き込み*/
+   230	  (profile_p->birthday).d = atoi(ret2[2]);                 /*誕生日の書
+き込み*/
+   231	  strncpy(profile_p->address, ret[3], 69);                 /*住所の書き
+込み*/
    232	
-   233	  MAX_BIKO = strlen(ret[4]) + 1;                           /*備考情報の文字数
-のカウント*/
+   233	  MAX_BIKO = strlen(ret[4]) + 1;                           /*備考情報の
+文字数のカウント*/
    234	
-   235	  profile_p->biko = (char *)malloc(sizeof(char) * MAX_BIKO); /*文字数分だけ
-メモリ確保*/
-   236	  strncpy(profile_p->biko, ret[4], MAX_BIKO);              /*備考の書き込み*/
+   235	  profile_p->biko = (char *)malloc(sizeof(char) * MAX_BIKO); /*文字数分
+だけメモリ確保*/
+   236	  strncpy(profile_p->biko, ret[4], MAX_BIKO);              /*備考の書き
+込み*/
    237	}
    238	
    239	int main(void)
    240	{
-   241	  char LINE[MAX_LINE] = {0};                               /*入力文字列(1行分)は
-main関数で管理*/
+   241	  char LINE[MAX_LINE] = {0};                               /*入力文字列(
+1行分)はmain関数で管理*/
    242	
-   243	  while(get_line(LINE))                                    /*文字配列LINEに文字列
-を入力する*/
+   243	  while(get_line(LINE))                                    /*文字配列LIN
+Eに文字列を入力する*/
    244	    {
-   245	      parse_line(LINE);                                    /*入力文字列がある場合，
-構文解析を行う*/
+   245	      parse_line(LINE);                                    /*入力文字列
+がある場合，構文解析を行う*/
    246	    }
    247	  return 0;
    248	}
@@ -1766,13 +1820,15 @@ main関数で管理*/
 
 \begin{Verbatim}[fontsize=\small, baselinestretch=0.8]
      1	#include <stdio.h>
-     2	#include <string.h>                                        /*strncpy関数等用*/
-     3	#include <stdlib.h>                                        /*exit関数用*/
+     2	#include <string.h>                                        /*strncpy関数
+等用*/
+     3	#include <stdlib.h>                                        /*exit関数用*
+/
      4	
-     5	#define ESC 27                                             /*文字列ESCをESC
-のASCIIコードで置換*/
-     6	#define MAX_LINE 1025                                      /*文字配列LINEの
-最大入力数の指定用*/
+     5	#define ESC 27                                             /*文字列ESCを
+ESCのASCIIコードで置換*/
+     6	#define MAX_LINE 1025                                      /*文字配列LIN
+Eの最大入力数の指定用*/
      7	
      8	/*構造体宣言*/
      9	struct date
@@ -1807,88 +1863,90 @@ main関数で管理*/
     38	void new_profile(struct profile *profile_p, char *line);
     39	
     40	/*グローバル変数宣言*/
-    41	struct profile profile_data_store[10000];                  /*profile情報を
-格納*/
-    42	int profile_data_nitems = 0;                               /*profile情報の
-保存数を格納*/
+    41	struct profile profile_data_store[10000];                  /*profile情報
+を格納*/
+    42	int profile_data_nitems = 0;                               /*profile情報
+の保存数を格納*/
     43	
     44	int subst(char *str, char c1, char c2)
     45	{
-    46	  int i;                                                   /*forループ用*/
-    47	  int c = 0;                                               /*置き換えた文字
-数のカウント用*/
-    48	  for(i = 0; *(str + i) != '\0'; i++)                      /*入力文字列の
-終端に辿り着くまでループ*/
+    46	  int i;                                                   /*forループ用
+*/
+    47	  int c = 0;                                               /*置き換えた
+文字数のカウント用*/
+    48	  for(i = 0; *(str + i) != '\0'; i++)                      /*入力文字列
+の終端に辿り着くまでループ*/
     49	    {
-    50	      if(c1 == c2) break;                                  /*見た目上文字列
-に変化がないとき*/
+    50	      if(c1 == c2) break;                                  /*見た目上文
+字列に変化がないとき*/
     51	      if(*(str + i) == c1)                                 /*(str + i)の
 文字がc1の文字と同じとき*/
     52		{
     53		  *(str + i) = c2;                                 /*(str + i)の
 文字をc2の文字に置き換える*/
-    54		  c++;                                             /*置き換えた文字
-を数える*/
+    54		  c++;                                             /*置き換えた
+文字を数える*/
     55		}
     56	    }
-    57	  return c;                                                /*置き換えた文字
-数を戻り値とする．*/
+    57	  return c;                                                /*置き換えた
+文字数を戻り値とする．*/
     58	}
     59	
     60	int split(char *str, char *ret[], char sep, int max)
     61	{
-    62	  int i;                                                   /*forループ用*/
-    63	  int c = 0;                                               /*ポインタの配列
-の指定用*/
+    62	  int i;                                                   /*forループ用
+*/
+    63	  int c = 0;                                               /*ポインタの
+配列の指定用*/
     64	
-    65	  ret[c++] = str;                                            /*ret[0]にstr
-の先頭アドレスを代入*/
+    65	  ret[c++] = str;                                            /*ret[0]にs
+trの先頭アドレスを代入*/
     66	
-    67	  for(i = 0; *(str + i) != '\0'&& c < max; i++)            /*cがmaxより小
-さいかつ入力文字列の終端に辿り着いていないときループ*/
+    67	  for(i = 0; *(str + i) != '\0'&& c < max; i++)            /*cがmaxより
+小さいかつ入力文字列の終端に辿り着いていないときループ*/
     68	    {
     69	      if(*(str + i) == sep)                                /*(str + i)が
 sepのとき*/
     70		{
     71		  *(str + i) = '\0';                               /*(str + i)に
 NULLを代入*/
-    72		  ret[c++] = str + (i + 1);                          /*ret[c]にNULL
-文字の"次の"アドレスを代入*/
+    72		  ret[c++] = str + (i + 1);                          /*ret[c]にN
+ULL文字の"次の"アドレスを代入*/
     73		}
     74	    }
-    75	  return c;                                                /*文字列をいく
-つに分割したかを戻り値とする*/
+    75	  return c;                                                /*文字列をい
+くつに分割したかを戻り値とする*/
     76	}
     77	
     78	int get_line(char *line)
     79	{
-    80	  if(fgets(line, MAX_LINE, stdin) == NULL) return 0;       /*入力文字列が
-空のとき，0を戻り値とする．入力文字列は1024文字*/
+    80	  if(fgets(line, MAX_LINE, stdin) == NULL) return 0;       /*入力文字列
+が空のとき，0を戻り値とする．入力文字列は1024文字*/
     81	  if(*line == ESC) cmd_quit();
     82	  subst(line, '\n', '\0');                                 /*subst関数に
 より，入力の改行文字を終端文字に置き換える*/
-    83	  return 1;                                                /*入力文字列が
-存在したとき，1を戻り値とする*/
+    83	  return 1;                                                /*入力文字列
+が存在したとき，1を戻り値とする*/
     84	}
     85	
     86	void parse_line(char *line)
     87	{
-    88	  char cmd;                                                /*%の次の1文字
-を格納用*/
+    88	  char cmd;                                                /*%の次の1文
+字を格納用*/
     89	  char *param;                                             /*コマンドの
 パラメータとなる文字列へのポインタ用*/
     90	
     91	  if(*line == '%')                                         /*入力文字列
 の1文字目が%のとき*/
     92	    {
-    93	      cmd = *(line + 1);                                   /*cmdに入力
-文字列の2文字目の値を代入*/
-    94	      param = line + 3;                                    /*paramにパラメータ
-部を代入*/
+    93	      cmd = *(line + 1);                                   /*cmdに入力文
+字列の2文字目の値を代入*/
+    94	      param = line + 3;                                    /*paramにパラ
+メータ部を代入*/
     95	      exec_command(cmd, param);
     96	    }
-    97	  else                                                     /*入力がコマンド
-ではないとき*/
+    97	  else                                                     /*入力がコマ
+ンドではないとき*/
     98	    {
     99	      new_profile(&profile_data_store[profile_data_nitems++] ,line);
    100	    }
@@ -1898,16 +1956,16 @@ NULLを代入*/
    104	{
    105	  switch (cmd) {
    106	  case 'Q': cmd_quit();   break;
-   107	    //case 'T': printf("Parameter test:\"%s\"\n", param); break;   /*ポインタparam
-の参照先から後ろに向かって，NULLまで文字列を表示する（デバッグ用）*/
+   107	    //case 'T': printf("Parameter test:\"%s\"\n", param); break;   /*ポ
+インタparamの参照先から後ろに向かって，NULLまで文字列を表示する（デバッグ用）*/
    108	  case 'C': cmd_check();  break;
    109	  case 'P': cmd_print(param);  break;
    110	  case 'R': cmd_read();   break;
    111	  case 'W': cmd_write();  break;
    112	  case 'F': cmd_find();   break;
    113	  case 'S': cmd_sort();   break;
-   114	  default: fprintf(stderr, "Invalid command %c: ignored.\n", cmd); break;/*エラー
-メッセージを表示*/
+   114	  default: fprintf(stderr, "Invalid command %c: ignored.\n", cmd); break
+;/*エラーメッセージを表示*/
    115	  }
    116	}
    117	
@@ -1917,10 +1975,11 @@ NULLを代入*/
    121	
    122	  //while(1)
    123	  //{
-   124	  //printf("Do you want to quit?(y/n)\n");               /*確認メッセージ*/
+   124	  //printf("Do you want to quit?(y/n)\n");               /*確認メッセー
+ジ*/
    125	  //c = getchar();
-   126	  //getchar();                                           /*getcharでの入力
-時に改行文字が残ってしまうため*/
+   126	  //getchar();                                           /*getcharでの入
+力時に改行文字が残ってしまうため*/
    127	  //if(c == 'y')
    128	  //{
    129	  //printf("quit success.\n\n");
@@ -1942,33 +2001,37 @@ NULLを代入*/
    145	void cmd_print(char *param)
    146	{
    147	  int a = 0;
-   148	  int i = 0;                                                 /*forループ用*/
+   148	  int i = 0;                                                 /*forループ
+用*/
    149	
-   150	  a = atoi(param);                                           /*文字列をint型の値に変換*/
+   150	  a = atoi(param);                                           /*文字列をi
+nt型の値に変換*/
    151	
    152	  /*aの絶対値がprofile_data_nitemsより大きいときかa=0のとき*/
    153	  if(abs(a) >= profile_data_nitems|| a == 0) a = profile_data_nitems;
    154	
-   155	  if(a > 0)                                                  /*引数が正の整数のとき及び例外*/
+   155	  if(a > 0)                                                  /*引数が正
+の整数のとき及び例外*/
    156	    {
    157	      for(i = 0; i < a; i++)
    158	        {
    159		  printf("Id    : %d\n", profile_data_store[i].id);
    160		  printf("Name  : %s\n", profile_data_store[i].name);
-   161		  printf("Birth : %04d-%02d-%02d\n", profile_data_store[i].birthday.y, profile_
-data_store[i].birthday.m, profile_data_store[i].birthday.d);
+   161		  printf("Birth : %04d-%02d-%02d\n", profile_data_store[i].birth
+day.y, profile_data_store[i].birthday.m, profile_data_store[i].birthday.d);
    162		  printf("Addr. : %s\n",profile_data_store[i].address);
    163		  printf("Comm. : %s\n\n",profile_data_store[i].biko);
    164		}
    165	    }
-   166	  else if(a < 0)                                             /*引数が負の整数のとき*/
+   166	  else if(a < 0)                                             /*引数が負
+の整数のとき*/
    167	    {
    168	      for(i = profile_data_nitems + a; i < profile_data_nitems; i++)
    169		{
    170		  printf("Id    : %d\n", profile_data_store[i].id);
    171		  printf("Name  : %s\n", profile_data_store[i].name);
-   172		  printf("Birth : %04d-%02d-%02d\n", profile_data_store[i].birthday.y, profile_
-data_store[i].birthday.m, profile_data_store[i].birthday.d);
+   172		  printf("Birth : %04d-%02d-%02d\n", profile_data_store[i].birth
+day.y, profile_data_store[i].birthday.m, profile_data_store[i].birthday.d);
    173		  printf("Addr. : %s\n",profile_data_store[i].address);
    174		  printf("Comm. : %s\n\n",profile_data_store[i].biko);
    175		}
@@ -1997,67 +2060,74 @@ data_store[i].birthday.m, profile_data_store[i].birthday.d);
    198	void new_profile(struct profile *profile_p, char *line)
    199	{
    200	  char *ret[10];
-   201	  char *ret2[4];                                           /*誕生日の情報
-を分割し，その先頭アドレスを保存*/
+   201	  char *ret2[4];                                           /*誕生日の情
+報を分割し，その先頭アドレスを保存*/
    202	  char sep = ',';                                          /*csvファイル
-からの入力を想定しているため，コンマ*/
-   203	  char sep2 = '-';                                         /*誕生日の入力
-文字列にあるハイフンで区切るため，ハイフン*/
+からの入力を想定しているため，カンマ*/
+   203	  char sep2 = '-';                                         /*誕生日の入
+力文字列にあるハイフンで区切るため，ハイフン*/
    204	  int max = 10;
    205	  int max2 = 4;
    206	  int c, birth_c;
-   207	  int MAX_BIKO = 0;                                        /*備考の文字数
-カウント用*/
+   207	  int MAX_BIKO = 0;                                        /*備考の文字
+数カウント用*/
    208	  
-   209	  c = split(line, ret, sep, max);                          /*ID，名前などの
-情報を分割する*/
-   210	  if(c != 5)                                               /*入力形式が合わ
-ない場合*/
+   209	  c = split(line, ret, sep, max);                          /*ID，名前な
+どの情報を分割する*/
+   210	  if(c != 5)                                               /*入力形式が
+合わない場合*/
    211	    {
-   212	      fprintf(stderr, "情報はID，名前，誕生日，住所，備考の順で入力される必要があり
-ます．\n処理を中止しました．\n\n");
-   213	      profile_data_nitems--;                               /*処理中止により，
-構造体に情報を書き込まないため*/
+   212	      fprintf(stderr, "情報はID，名前，誕生日，住所，備考の順で入力され
+る必要があります．\n処理を中止しました．\n\n");
+   213	      profile_data_nitems--;                               /*処理中止に
+より，構造体に情報を書き込まないため*/
    214	      return;
    215	    }
-   216	  birth_c = split(ret[2], ret2, sep2, max2);               /*誕生日の年，月，
-日を分割する*/
-   217	  if(birth_c != 3)                                         /*誕生日の年，月，
-日を正常に分割できない場合*/
+   216	  birth_c = split(ret[2], ret2, sep2, max2);               /*誕生日の年
+，月，日を分割する*/
+   217	  if(birth_c != 3)                                         /*誕生日の年
+，月，日を正常に分割できない場合*/
    218	      {
-   219		fprintf(stderr, "誕生日は\"年-月-日\"の形で入力される必要があります．\n処理を中止
-しました．\n\n"); /*年，月，日に分割できない場合，処理を停止*/
-   220		profile_data_nitems--;                             /*処理中止により，
-構造体に情報を書き込まないため*/
+   219		fprintf(stderr, "誕生日は\"年-月-日\"の形で入力される必要があり
+ます．\n処理を中止しました．\n\n"); /*年，月，日に分割できない場合，処理を停止*/
+   220		profile_data_nitems--;                             /*処理中止に
+より，構造体に情報を書き込まないため*/
    221		return;
    222	      }
    223	
    224	  /*構造体への情報の書き込み処理*/
-   225	  profile_p->id = atoi(ret[0]);                            /*IDの書き込み*/
-   226	  strncpy(profile_p->name, ret[1], 69);                    /*名前の書き込み*/
-   227	  (profile_p->birthday).y = atoi(ret2[0]);                 /*誕生年の書き込み*/
-   228	  (profile_p->birthday).m = atoi(ret2[1]);                 /*誕生月の書き込み*/
-   229	  (profile_p->birthday).d = atoi(ret2[2]);                 /*誕生日の書き込み*/
-   230	  strncpy(profile_p->address, ret[3], 69);                 /*住所の書き込み*/
+   225	  profile_p->id = atoi(ret[0]);                            /*IDの書き込
+み*/
+   226	  strncpy(profile_p->name, ret[1], 69);                    /*名前の書き
+込み*/
+   227	  (profile_p->birthday).y = atoi(ret2[0]);                 /*誕生年の書
+き込み*/
+   228	  (profile_p->birthday).m = atoi(ret2[1]);                 /*誕生月の書
+き込み*/
+   229	  (profile_p->birthday).d = atoi(ret2[2]);                 /*誕生日の書
+き込み*/
+   230	  strncpy(profile_p->address, ret[3], 69);                 /*住所の書き
+込み*/
    231	
-   232	  MAX_BIKO = strlen(ret[4]) + 1;                           /*備考情報の文字数
-のカウント*/
+   232	  MAX_BIKO = strlen(ret[4]) + 1;                           /*備考情報の
+文字数のカウント*/
    233	
-   234	  profile_p->biko = (char *)malloc(sizeof(char) * MAX_BIKO); /*文字数分だけ
-メモリ確保*/
-   235	  strncpy(profile_p->biko, ret[4], MAX_BIKO);              /*備考の書き込み*/
+   234	  profile_p->biko = (char *)malloc(sizeof(char) * MAX_BIKO); /*文字数分
+だけメモリ確保*/
+   235	  strncpy(profile_p->biko, ret[4], MAX_BIKO);              /*備考の書き
+込み*/
    236	}
    237	
    238	int main(void)
    239	{
-   240	  char LINE[MAX_LINE] = {0};                               /*入力文字列(1行分)は
-main関数で管理*/
+   240	  char LINE[MAX_LINE] = {0};                               /*入力文字列(
+1行分)はmain関数で管理*/
    241	
-   242	  while(get_line(LINE))                                    /*文字配列LINEに文字列
-を入力する*/
+   242	  while(get_line(LINE))                                    /*文字配列LIN
+Eに文字列を入力する*/
    243	    {
-   244	      parse_line(LINE);                                    /*入力文字列がある場合，
-構文解析を行う*/
+   244	      parse_line(LINE);                                    /*入力文字列
+がある場合，構文解析を行う*/
    245	    }
    246	  return 0;
    247	}
@@ -2830,8 +2900,8 @@ n\n", i);
   \bibitem{www:label4} 4.3 ポインタ配列，http://cai3.cs.shinshu-u.ac.jp/sugsi/Lecture/c2/e\_04-03.html，2020．05．14．%アンダースコアはLaTeXの特殊文字にあたるため，\を挿入している．
   \bibitem{www:label5} strncpy，http://www9.plala.or.jp/sgwr-t/lib/strncpy.html，2020．5．21．
   \bibitem{www:label6} 文字列を数値に変換する - C の部屋，http://www.t-net.ne.jp/~cyfis/c/stdlib/atoi.html，2020．5．21．
-  \bibitem{www:label7} IT用語辞典E-Words コアダンプ，http://e-words.jp/w/\%E3\%82\%B3\%E3\%82\%A2\%E3\%83\%80\%E3
-\%83\%B3\%E3\%83\%97.html，2020．5．22．%'%'はLaTeXの特殊文字にあたるため，\を挿入している．
+  \bibitem{www:label7} IT用語辞典E-Words コアダンプ，http://e-words.jp/w/\%E3\%82\%B3\%E3\%82\%A2\%E3\%83\%80\%
+E3\%83\%B3\%E3\%83\%97.html，2020．5．22．%'%'はLaTeXの特殊文字にあたるため，\を挿入している．
   \bibitem{www:label8} strlen，http://www9.plala.or.jp/sgwr-t/lib/strlen.html，2020．06．04
   \bibitem{www:label9} メモリ領域の動的確保，http://rainbow.pc.uec.ac.jp/edu/program/b1/programming-6.htm，2020．06．04
   \bibitem{www:label10} malloc，http://www9.plala.or.jp/sgwr-t/lib/malloc.html，2020．06．04
